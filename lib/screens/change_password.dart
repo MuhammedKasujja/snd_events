@@ -1,0 +1,88 @@
+import 'package:flutter/material.dart';
+import 'package:snd_events/data/repo.dart';
+import 'package:snd_events/utils/app_utils.dart';
+import 'package:snd_events/utils/constants.dart';
+import 'package:snd_events/widgets/submit_button.dart';
+import 'package:snd_events/widgets/textfield.dart';
+
+class ChangePasswordScreen extends StatefulWidget {
+  final String userToken;
+
+  const ChangePasswordScreen({Key key, @required this.userToken})
+      : super(key: key);
+  @override
+  _ChangePasswordScreenState createState() => _ChangePasswordScreenState();
+}
+
+class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+  String oldPass, newPass, confPass;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Change Password")),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                TextfieldWidget(
+                    onTextChange: (value) {
+                      setState(() {
+                        oldPass = value;
+                      });
+                    },
+                    hint: 'Old Password'),
+                TextfieldWidget(
+                    onTextChange: (value) {
+                      setState(() {
+                        newPass = value;
+                      });
+                    },
+                    hint: 'New Password'),
+                TextfieldWidget(
+                    onTextChange: (value) {
+                      setState(() {
+                        confPass = value;
+                      });
+                    },
+                    hint: 'Confirm New Password'),
+                SubmitButtonWidget(onPressed: () {
+                  if (_validateFields()) {
+                    if (_validatePassword()) {
+                      Repository()
+                          .changePassword(
+                              token: widget.userToken,
+                              oldPassword: oldPass,
+                              newPassword: newPass)
+                          .then((data) {
+                        AppUtils.showToast(data[Constants.KEY_RESPONSE]);
+                      });
+                    } else {
+                      AppUtils.showToast('Passwords do not match');
+                    }
+                  } else {
+                    AppUtils.showToast(Constants.HINT_FILL_ALL_FIELDS);
+                  }
+                })
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool _validatePassword() {
+    return newPass == confPass;
+  }
+
+  bool _validateFields() {
+    return oldPass != null &&
+        oldPass.isNotEmpty &&
+        newPass != null &&
+        newPass.isNotEmpty &&
+        confPass != null &&
+        confPass.isNotEmpty;
+  }
+}
