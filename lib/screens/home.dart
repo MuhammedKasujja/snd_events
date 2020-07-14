@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:snd_events/data/botton_nav_items.dart';
+import 'package:snd_events/data/repo.dart';
 import 'package:snd_events/screens/events.dart';
-import 'package:snd_events/screens/login.dart';
-import 'package:snd_events/screens/register.dart';
+import 'package:snd_events/screens/topicslist.dart';
 import 'package:snd_events/screens/user_profile.dart';
+import 'package:snd_events/states/app_state.dart';
+import 'package:snd_events/utils/app_theme.dart';
+import 'package:snd_events/utils/app_utils.dart';
+import 'package:snd_events/utils/constants.dart';
 
 class HomeScreen extends StatefulWidget {
   final String token;
@@ -15,17 +20,67 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  String token;
+  String _profilePhoto;
+  String _title = Constants.APP_NAME;
+  @override
+  void initState() {
+    this.token = widget.token;
+    if (widget.token == null || widget.token.isEmpty) {
+      Repository().loadPrefs().then((prefs) {
+        setState(() {
+          token = prefs[Constants.USER_TOKEN];
+          _profilePhoto = prefs[Constants.KEY_PROFILE_PHOTO];
+        });
+      });
+    }
+    Provider.of<AppState>(context, listen: false).getUserData();
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
     return SafeArea(
       top: false,
       child: Scaffold(
-        body: IndexedStack(index: _currentIndex, children: [
-          EventListScreen(userToken: widget.token),
-          RegisterScreen(),
-          LoginScreen(),
-          UserProfileScreen(userToken: widget.token),
-        ]),
+        appBar: AppBar(
+          backgroundColor: AppTheme.PrimaryDarkColor,
+          title: Text(_title),
+          elevation: 0.0,
+          actions: <Widget>[
+            IconButton(
+                icon: _profilePhoto != null
+                    ? Container(
+                        width: 35,
+                        height: 35,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(35),
+                            border: Border.all(width: 1, color: Colors.white),
+                            image: DecorationImage(
+                                fit: BoxFit.fill,
+                                image: NetworkImage(_profilePhoto))),
+                      )
+                    : Icon(
+                        Icons.person_pin,
+                        size: 35,
+                      ),
+                onPressed: () {
+                  AppUtils(context).nextPage(
+                      page: UserProfileScreen(
+                    userToken: appState.userToken,
+                  ));
+                })
+          ],
+        ),
+        body: EventListScreen(userToken: this.token),
+        // IndexedStack(index: _currentIndex, children: [
+        //   EventListScreen(userToken: this.token),
+        //   RegisterScreen(),
+        //   LoginScreen(),
+        //   UserProfileScreen(userToken: this.token),
+        // ]),
         bottomNavigationBar: BottomNavigationBar(
           // comment this to hide bottom titles
           type: BottomNavigationBarType.fixed,
@@ -34,6 +89,9 @@ class _HomeScreenState extends State<HomeScreen> {
             setState(() {
               _currentIndex = index;
             });
+            if (index == 0) {
+              AppUtils(context).nextPage(page: TopicsListScreen());
+            }
           },
           items: allDestinations.map((destination) {
             return BottomNavigationBarItem(

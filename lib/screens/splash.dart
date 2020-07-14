@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:snd_events/data/repo.dart';
 import 'package:snd_events/screens/home.dart';
 import 'package:snd_events/screens/login.dart';
+import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/constants.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -48,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
             children: <Widget>[
               Text(
                 Constants.APP_NAME,
-                style: TextStyle(fontSize: 22),
+                style: TextStyle(fontSize: 25, color: AppTheme.PrimaryDarkColor),
               )
             ],
           ),

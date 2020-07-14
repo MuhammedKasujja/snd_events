@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/constants.dart';
 
 class AppIcon extends StatelessWidget {
@@ -17,7 +18,7 @@ class AppIcon extends StatelessWidget {
               style: TextStyle(
                   //fontWeight: FontWeight.bold,
                   fontSize: 30,
-                  color: Colors.blue),
+                  color: AppTheme.PrimaryDarkColor),
             ),
           ),
         ),

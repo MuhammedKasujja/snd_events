@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:snd_events/data/repo.dart';
+import 'package:snd_events/screens/home.dart';
 import 'package:snd_events/screens/register.dart';
-import 'package:snd_events/screens/splash.dart';
+import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/app_utils.dart';
 import 'package:snd_events/utils/constants.dart';
 import 'package:snd_events/widgets/app_icon.dart';
@@ -20,21 +20,25 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.blue,
+      color: AppTheme.PrimaryDarkColor,
       child: SafeArea(
         child: Scaffold(
             body: Container(
           child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SingleChildScrollView(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: <Widget>[
                     AppIcon(),
                     Text(Constants.LOGIN,
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 16)),
+                    SizedBox(
+                      height: 10,
+                    ),
                     TextfieldWidget(
+                      inputType: TextInputType.emailAddress,
                       hint: Constants.HINT_EMAIL,
                       onTextChange: (value) {
                         setState(() {
@@ -47,6 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     TextfieldWidget(
                       hint: Constants.HINT_PASSWORD,
+                      isPassword: true,
                       onTextChange: (value) {
                         setState(() {
                           password = value;
@@ -60,18 +65,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (_validateFields()) {
                         _login();
                       } else {
-                        Fluttertoast.showToast(msg: 'Please fill all fields', gravity: ToastGravity.TOP);
+                        AppUtils.showToast(Constants.HINT_FILL_ALL_FIELDS);
                       }
                     }),
                     ORWidget(),
-                    InkWell(
+                    OutlineButton(
+                      highlightedBorderColor: AppTheme.PrimaryDarkColor,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           Constants.REGISTER,
                         ),
                       ),
-                      onTap: () {
+                      onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) {
                           return RegisterScreen();
                         }));
@@ -103,7 +109,11 @@ class _LoginScreenState extends State<LoginScreen> {
         AppUtils.showToast(data[Constants.KEY_RESPONSE]);
         Repository().savePrefs(data['token'], email).then((value) {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => SplashScreen()));
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HomeScreen(
+                        token: data['token'],
+                      )));
         });
       }
     });

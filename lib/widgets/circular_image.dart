@@ -22,14 +22,26 @@ class _CircularImageWidgetState extends State<CircularImageWidget> {
       child: Container(
         height: 150,
         width: 150,
-        decoration: BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
+        decoration: BoxDecoration(
+          color: Colors.grey,
+          shape: BoxShape.circle,
+          // image: DecorationImage(
+          //     fit: BoxFit.fill,
+          //     image: _image != null ? AssetImage(_image.path) : null)
+        ),
         child: _image == null
             ? Icon(
                 Icons.add_a_photo,
                 color: Colors.white,
                 size: 65,
               )
-            : Image.file(_image),
+            : ClipOval(
+                child: Image.file(
+                _image,
+                width: 120,
+                height: 120,
+                fit: BoxFit.scaleDown,
+              )),
       ),
       onTap: () {
         getImage();

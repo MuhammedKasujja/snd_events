@@ -1,24 +1,38 @@
+import 'package:snd_events/models/child.dart';
+
 class User {
   final String image;
-  final String firstname;
-  final String lastname;
+  final String name;
+  final String country;
   final String email;
+  final String city;
+  final List<Child> children;
 
-  User({this.image, this.firstname, this.lastname, this.email});
+  User(
+      {this.city,
+      this.image,
+      this.name,
+      this.country,
+      this.email,
+      this.children});
 
   factory User.fromJson(Map<String, dynamic> json) {
+    var userdata = json['response'];
     return User(
-        email: json['email'],
-        lastname: json['lastname'],
-        firstname: json['firstname'],
-        image: json['image']);
+        email: userdata['email'],
+        country: userdata['country'],
+        name: userdata['name'],
+        city: userdata['city'],
+        children: (json['children'] as List)
+            .map((m) => new Child.fromJson(m))
+            .toList());
   }
 
   Map toMap() {
     var map = {
       'email': this.email,
-      'lastname': this.lastname,
-      'firstname': this.firstname,
+      'country': this.country,
+      'name': this.name,
       'image': this.image
     };
     return map;

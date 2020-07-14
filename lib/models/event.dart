@@ -1,18 +1,43 @@
+
 class Event {
-  final String startDateTime;
-  final String endDateTime;
+  final int id;
+  final String startDate;
+  final String endDate;
   final String theme;
-  final String district;
   final String street;
+  final String startTime;
+  final String endTime;
+  final String photo;
+  final String speaker;
+  final String locDistrict;
+  final String organizer;
 
   Event(
-      {this.startDateTime,
-      this.endDateTime,
+      {this.id,
+      this.startTime,
+      this.endTime,
+      this.startDate,
+      this.endDate,
       this.theme,
-      this.district,
-      this.street});
+      this.street,
+      this.photo,
+      this.speaker,
+      this.locDistrict,
+      this.organizer});
 
-  factory Event.fromJson(Map<String, dynamic> json){
-    return Event();
+  factory Event.fromJson(Map<String, dynamic> json) {
+    return Event(
+      id: json['id'],
+      theme: json['theme'],
+      photo: json['photo'],
+      speaker: json['speaker'],
+      locDistrict: json['location_district'],
+      organizer: json['organizer'],
+      street: json['building_street'],
+      startDate: json['start_date'],
+      endDate: json['end_date'],
+      startTime: json['start_time'],
+      endTime: json['end_time'],
+    );
   }
 }

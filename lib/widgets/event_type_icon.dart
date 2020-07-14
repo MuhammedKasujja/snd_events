@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:snd_events/utils/app_theme.dart';
 
 class EventTypeIcon extends StatelessWidget {
   final String type;
@@ -37,7 +38,9 @@ class EventTypeIcon extends StatelessWidget {
                     child: Text(type,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: textColor == null ? Colors.blue : textColor,
+                          color: textColor == null
+                              ? AppTheme.PrimaryDarkColor
+                              : textColor,
                         )))),
           ),
           onTap: this.onSelected,

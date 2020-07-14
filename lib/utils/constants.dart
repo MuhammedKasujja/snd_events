@@ -22,4 +22,5 @@ class Constants{
   static const KEY_ERROR = "error";
   static const KEY_TOKEN = "token";
   static const KEY_EMAIL = 'email';
+  static const KEY_PROFILE_PHOTO ="profile_photo";
 }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:snd_events/data/repo.dart';
+import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/app_utils.dart';
 import 'package:snd_events/utils/constants.dart';
 import 'package:snd_events/widgets/app_icon.dart';
+import 'package:snd_events/widgets/country_dropdown.dart';
 import 'package:snd_events/widgets/other_option.dart';
 import 'package:snd_events/widgets/submit_button.dart';
 import 'package:snd_events/widgets/textfield.dart';
@@ -14,87 +15,100 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  String name, email, password, confirmPassword;
+  String name, email, password, confirmPassword, _country = "UG", _city;
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.blue,
+      color: AppTheme.PrimaryDarkColor,
       child: SafeArea(
         child: Scaffold(
             body: Container(
-          child: Center(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: <Widget>[
-                    AppIcon(),
-                    Text(
-                      Constants.REGISTER,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    TextfieldWidget(
-                      hint: Constants.HINT_NAME,
-                      onTextChange: (value) {
-                        setState(() {
-                          name = value;
-                        });
-                      },
-                    ),
-                    TextfieldWidget(
-                      hint: Constants.HINT_EMAIL,
-                      onTextChange: (value) {
-                        setState(() {
-                          email = value;
-                        });
-                      },
-                    ),
-                    TextfieldWidget(
-                      hint: Constants.HINT_PASSWORD,
-                      onTextChange: (value) {
-                        setState(() {
-                          password = value;
-                        });
-                      },
-                    ),
-                    TextfieldWidget(
-                      hint: Constants.HINT_CONFIRM_PASSWORD,
-                      onTextChange: (value) {
-                        setState(() {
-                          confirmPassword = value;
-                        });
-                      },
-                    ),
-                    SubmitButtonWidget(onPressed: () {
-                      if (_validateFields()) {
-                        if (_validatePassword()) {
-                          _registerUser();
-                        } else {
-                          Fluttertoast.showToast(
-                              msg: "Passwords do not match",
-                              gravity: ToastGravity.TOP);
-                        }
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: <Widget>[
+                  AppIcon(),
+                  Text(
+                    Constants.REGISTER,
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  SizedBox(height: 10,),
+                  TextfieldWidget(
+                    hint: Constants.HINT_NAME,
+                    onTextChange: (value) {
+                      setState(() {
+                        name = value;
+                      });
+                    },
+                  ),
+                  CountryDropdownWidget(onCountySelected: (country) { 
+                    print(country);
+                      setState(() {
+                        _country = country;
+                      });
+                   },),
+                   TextfieldWidget(
+                    hint: 'City',
+                    onTextChange: (value) {
+                      setState(() {
+                        _city = value;
+                      });
+                    },
+                  ),
+                  TextfieldWidget(
+                    hint: Constants.HINT_EMAIL,
+                    inputType: TextInputType.emailAddress,
+                    onTextChange: (value) {
+                      setState(() {
+                        email = value;
+                      });
+                    },
+                  ),
+                  TextfieldWidget(
+                    hint: Constants.HINT_PASSWORD,
+                    isPassword: true,
+                    onTextChange: (value) {
+                      setState(() {
+                        password = value;
+                      });
+                    },
+                  ),
+                  TextfieldWidget(
+                    hint: Constants.HINT_CONFIRM_PASSWORD,
+                    isPassword: true,
+                    onTextChange: (value) {
+                      setState(() {
+                        confirmPassword = value;
+                      });
+                    },
+                  ),
+                  SubmitButtonWidget(onPressed: () {
+                    if (_validateFields()) {
+                      if (_validatePassword()) {
+                        _registerUser();
                       } else {
-                        Fluttertoast.showToast(
-                            msg: "Please fill all fields",
-                            gravity: ToastGravity.TOP);
+                        AppUtils.showToast("Passwords do not match");
                       }
-                    }),
-                    ORWidget(),
-                    GestureDetector(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          Constants.LOGIN,
-                        ),
+                    } else {
+                      AppUtils.showToast(Constants.HINT_FILL_ALL_FIELDS);
+                    }
+                  }),
+                  ORWidget(),
+                  OutlineButton(
+                    highlightedBorderColor: AppTheme.PrimaryDarkColor,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16,vertical: 8),
+                      child: Text(
+                        Constants.LOGIN,
                       ),
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                    )
-                  ],
-                ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  )
+                ],
               ),
             ),
           ),
@@ -116,7 +130,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   _registerUser() {
     Repository()
-        .register(name: name, password: password, email: email)
+        .register(name: name, password: password, email: email, country: _country, city:_city)
         .then((data) {
       if (data[Constants.KEY_CODE] == 0) {
         AppUtils.showToast(data[Constants.KEY_ERROR]);

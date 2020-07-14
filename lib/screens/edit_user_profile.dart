@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:snd_events/data/repo.dart';
+import 'package:snd_events/states/app_state.dart';
+import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/app_utils.dart';
 import 'package:snd_events/utils/constants.dart';
 import 'package:snd_events/widgets/circular_image.dart';
@@ -7,22 +10,33 @@ import 'package:snd_events/widgets/textfield.dart';
 
 class EditUserProfileScreen extends StatefulWidget {
   final String userToken;
+  final Function(String photoUrl) onPhotoChanged;
 
-  const EditUserProfileScreen({Key key, this.userToken}) : super(key: key);
+  const EditUserProfileScreen(
+      {Key key, @required this.userToken, @required this.onPhotoChanged})
+      : super(key: key);
 
   @override
   _EditUserProfileScreenState createState() => _EditUserProfileScreenState();
 }
 
 class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
-  String fname, lname, email; var imagePath;
+  String fname, lname;
+  TextEditingController emailController = TextEditingController();
+  var _image;
+  String _photoUrl;
+  var user;
   @override
   void initState() {
-    Repository().getUserProfile(widget.userToken).then((data) {
-      print(data);
-    });
-
+    user = Provider.of<AppState>(context, listen:false).user;
+    emailController.text = user.email;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
   }
 
   @override
@@ -30,17 +44,35 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(Constants.EDIT_PROFILE),
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              if (_photoUrl != null) {
+                Repository().photoPrefs(_photoUrl).then((value) {
+                  if (value) {
+                    widget.onPhotoChanged(_photoUrl);
+                  }
+                });
+              }
+              Navigator.pop(context);
+            }),
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.save),
               onPressed: () {
-                Repository().updateProfile(
-                    token: widget.userToken,
-                    email: email,
-                    name: '$fname $lname',
-                    file: imagePath).then((data) {
-                       AppUtils.showToast(data[Constants.KEY_RESPONSE]);
-                    });
+                Repository(token: widget.userToken)
+                    .updateProfile(
+                        email: emailController.text,
+                        name: '$fname $lname',
+                        file: _image)
+                    .then((data) {
+                  print("Data $data");
+                  // AppUtils.showToast(data[Constants.KEY_RESPONSE]);
+                  setState(() {
+                    _photoUrl = data['photo'];
+                  });
+                  AppUtils.showToast('Saved Successfully');
+                });
               })
         ],
       ),
@@ -56,7 +88,7 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
                   child: Center(child: CircularImageWidget(
                     onImageChanged: (image) {
                       setState(() {
-                        imagePath = image;
+                        _image = image;
                       });
                       print(image);
                     },
@@ -76,13 +108,30 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
                       });
                     },
                     hint: Constants.HINT_LASTNAME),
-                TextfieldWidget(
-                    onTextChange: (value) {
-                      setState(() {
-                        email = value;
-                      });
-                    },
-                    hint: Constants.HINT_EMAIL),
+                Column(
+                  children: <Widget>[
+                    TextField(
+                      keyboardType: TextInputType.emailAddress,
+                      controller: emailController,
+                      // onChanged: this.onTextChange,
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: Constants.HINT_EMAIL,
+                          labelStyle:
+                              TextStyle(color: AppTheme.PrimaryDarkColor)),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    )
+                  ],
+                ),
+                // TextfieldWidget(
+                //     onTextChange: (value) {
+                //       setState(() {
+                //         email = value;
+                //       });
+                //     },
+                //     hint: Constants.HINT_EMAIL),
                 //Spacer(),
                 SizedBox(height: 20),
                 InkWell(
