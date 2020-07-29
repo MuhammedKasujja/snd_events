@@ -64,7 +64,7 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
                     .updateProfile(
                         email: emailController.text,
                         name: '$fname $lname',
-                        file: _image)
+                        filePath: _image.path)
                     .then((data) {
                   print("Data $data");
                   // AppUtils.showToast(data[Constants.KEY_RESPONSE]);

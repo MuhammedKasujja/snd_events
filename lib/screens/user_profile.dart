@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:snd_events/data/repo.dart';
@@ -108,7 +109,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                         shape: BoxShape.circle,
                                         image: DecorationImage(
                                             image: _profilePhoto != null
-                                                ? NetworkImage(_profilePhoto)
+                                                ? CachedNetworkImageProvider(_profilePhoto)
                                                 : AssetImage(
                                                     _defaultImage,
                                                   ),

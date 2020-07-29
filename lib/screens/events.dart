@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:snd_events/screens/add_community.dart';
-import 'package:snd_events/screens/add_event.dart';
+import 'package:snd_events/screens/add_edit_community.dart';
+import 'package:snd_events/screens/add_edit_event.dart';
 import 'package:snd_events/screens/commuties_list.dart';
 import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/app_utils.dart';
@@ -8,6 +8,7 @@ import 'package:snd_events/widgets/add_icon.dart';
 import 'package:snd_events/widgets/event_type_icon.dart';
 import 'package:snd_events/widgets/eventlist.dart';
 import 'package:snd_events/enums/event_type.dart';
+import 'package:snd_events/utils/constants.dart';
 
 class EventListScreen extends StatefulWidget {
   final String userToken;
@@ -25,17 +26,8 @@ class _EventListScreenState extends State<EventListScreen> {
   Widget build(BuildContext context) {
     return ListView(
       children: <Widget>[
-        // Center(
-        //   child: Padding(
-        //     padding: const EdgeInsets.all(8.0),
-        //     child: Text(
-        //       'Communities',
-        //       style: TextStyle(color: Colors.grey),
-        //     ),
-        //   ),
-        // ),
         SizedBox(
-          height: 2,
+          height: 6,
         ),
         CommunityListWidget(userToken: this.widget.userToken),
         Center(
@@ -73,7 +65,7 @@ class _EventListScreenState extends State<EventListScreen> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: AddIcon(
-                page: AddEventScreen(
+                page: AddEditEventScreen(
                   userToken: this.widget.userToken,
                 ),
               ),
@@ -89,8 +81,8 @@ class _EventListScreenState extends State<EventListScreen> {
             EventTypeIcon(
                 textColor:
                     currentEventIndex == 0 ? Colors.white : selectedColor,
-                color: currentEventIndex == 0? selectedColor : Colors.white,
-                type: 'Suggested',
+                color: currentEventIndex == 0 ? selectedColor : Colors.white,
+                type: Constants.EVENT_TYPE_SUGGESTED,
                 onSelected: () {
                   setState(() {
                     currentEventIndex = 0;
@@ -100,17 +92,16 @@ class _EventListScreenState extends State<EventListScreen> {
                 textColor:
                     currentEventIndex == 1 ? Colors.white : selectedColor,
                 color: currentEventIndex == 1 ? selectedColor : Colors.white,
-                type: 'Saved',
+                type: Constants.EVENT_TYPE_SAVED,
                 onSelected: () {
                   setState(() {
                     currentEventIndex = 1;
                   });
                 }),
             EventTypeIcon(
-              textColor:
-                  currentEventIndex == 2? Colors.white : selectedColor,
+              textColor: currentEventIndex == 2 ? Colors.white : selectedColor,
               color: currentEventIndex == 2 ? selectedColor : Colors.white,
-              type: 'Going',
+              type: Constants.EVENT_TYPE_GOING,
               onSelected: () {
                 setState(() {
                   currentEventIndex = 2;
@@ -124,17 +115,14 @@ class _EventListScreenState extends State<EventListScreen> {
           children: <Widget>[
             EventItemListScreen(
               key: Key("items1"),
-              userToken: widget.userToken,
               eventType: EventType.Suggested,
             ),
             EventItemListScreen(
               key: Key("items2"),
-              userToken: widget.userToken,
               eventType: EventType.Saved,
             ),
             EventItemListScreen(
               key: Key("items3"),
-              userToken: widget.userToken,
               eventType: EventType.Going,
             ),
           ],

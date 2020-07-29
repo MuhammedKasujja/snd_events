@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 // import 'package:flutter_multi_chip_select/flutter_multi_chip_select.dart';
 import 'package:snd_events/data/repo.dart';
 import 'package:snd_events/models/child.dart';
 import 'package:snd_events/models/child_conditions.dart';
+import 'package:snd_events/states/app_state.dart';
 import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/app_utils.dart';
 import 'package:snd_events/utils/constants.dart';
@@ -26,15 +28,22 @@ class _AddChilScreenState extends State<AddChilScreen> {
   List<ChildCondition> childConditions;
   List<int> selectedConditions = [];
   // final _multiSelectKey = GlobalKey<MultiSelectDropdownState>();
-
+  AppState appState;
+  bool isSubmitting = false;
   @override
   void initState() {
-    Repository().getChildConditions(token: widget.userToken).then((data) {
-      //print("Conditions: $data");
-      setState(() {
-        childConditions = data;
+    appState = Provider.of<AppState>(context, listen: false);
+    if (appState.childConditions != null) {
+      childConditions = appState.childConditions;
+    } else {
+      appState.getChildConditionsList().then((data) {
+        // print("Conditions: $data");
+        if (mounted)
+          setState(() {
+            childConditions = data;
+          });
       });
-    });
+    }
     super.initState();
   }
 
@@ -43,6 +52,14 @@ class _AddChilScreenState extends State<AddChilScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("My Child"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(3),
+          child: Container(
+            width: double.infinity,
+            child: isSubmitting ? LinearProgressIndicator() : Container(),
+            color: Colors.black,
+          ),
+        ),
       ),
       body: Container(
         child: SingleChildScrollView(
@@ -53,7 +70,10 @@ class _AddChilScreenState extends State<AddChilScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                Text('Tell us about your child'),
+                Text(
+                  'Tell us about your child',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
                 SizedBox(
                   height: 10,
                 ),
@@ -175,6 +195,7 @@ class _AddChilScreenState extends State<AddChilScreen> {
                 ),
                 SubmitButtonWidget(onPressed: () {
                   if (_validateFields()) {
+                    _showPageSubmitting(true);
                     Repository()
                         .addChild(
                       token: widget.userToken,
@@ -186,12 +207,16 @@ class _AddChilScreenState extends State<AddChilScreen> {
                       conditions: selectedConditions,
                     )
                         .then((data) {
+                      _showPageSubmitting(false);
                       AppUtils.showToast("${data['response']}");
                       this.widget.onChildAdded(Child(
                           name: "$firstname $lastname",
                           age: 0,
                           gender: gender));
                       print("Response: $data");
+                    }).catchError((onError) {
+                      _showPageSubmitting(false);
+                      AppUtils.showToast('Somethng went wrong');
                     });
                   } else {
                     AppUtils.showToast(Constants.HINT_FILL_ALL_FIELDS);
@@ -229,8 +254,8 @@ class _AddChilScreenState extends State<AddChilScreen> {
         physics: NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           return CheckboxListTile(
-            activeColor: AppTheme.PrimaryDarkColor,
-            title: Text(childConditions[index].name),
+              activeColor: AppTheme.PrimaryDarkColor,
+              title: Text(childConditions[index].name),
               value: selectedConditions.contains(childConditions[index].id),
               onChanged: (val) {
                 setState(() {
@@ -243,5 +268,11 @@ class _AddChilScreenState extends State<AddChilScreen> {
                 // print(selectedConditions);
               });
         });
+  }
+
+  _showPageSubmitting(bool showLoading) {
+    setState(() {
+      isSubmitting = showLoading;
+    });
   }
 }

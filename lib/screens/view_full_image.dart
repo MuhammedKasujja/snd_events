@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:snd_events/utils/app_theme.dart';
 
@@ -25,7 +26,7 @@ class ViewFullImageScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                             image: DecorationImage(
                                 image: this.imageType == 0
-                                    ? NetworkImage(this.imageUrl)
+                                    ? CachedNetworkImageProvider(this.imageUrl)
                                     : AssetImage(this.imageUrl))),
                       )),
                 ),

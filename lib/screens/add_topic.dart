@@ -27,14 +27,18 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
   AppState appState;
   @override
   void initState() {
-     appState = Provider.of<AppState>(context, listen: false);
-    Repository().getChildConditions(token: appState.userToken).then((data) {
-      // print("Conditions: $data");
-      if (mounted)
-        setState(() {
-          childConditions = data;
-        });
-    });
+    appState = Provider.of<AppState>(context, listen: false);
+    if (appState.childConditions != null) {
+      childConditions = appState.childConditions;
+    } else {
+      appState.getChildConditionsList().then((data) {
+        // print("Conditions: $data");
+        if (mounted)
+          setState(() {
+            childConditions = data;
+          });
+      });
+    }
     super.initState();
   }
 
@@ -80,9 +84,12 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
                         desc: _desc,
                         conditions: selectedConditions)
                     .then((data) {
-                      AppUtils.showToast(data[Constants.KEY_RESPONSE]);
-                      var topic = Topic(title: title, time: DateTime.now().toString(), details: _desc);
-                      appState.addTopic(topic);
+                  AppUtils.showToast(data[Constants.KEY_RESPONSE]);
+                  var topic = Topic(
+                      title: title,
+                      time: DateTime.now().toString(),
+                      details: _desc);
+                  appState.addTopic(topic);
                   print(data);
                 });
               }),
@@ -102,14 +109,11 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
           return CheckboxListTile(
               activeColor: AppTheme.PrimaryDarkColor,
               title: Text(childConditions[index].name),
-              value: selectedConditions
-                  .contains(childConditions[index].id),
+              value: selectedConditions.contains(childConditions[index].id),
               onChanged: (val) {
                 setState(() {
-                  if (selectedConditions
-                      .contains(childConditions[index].id)) {
-                    selectedConditions
-                        .remove(childConditions[index].id);
+                  if (selectedConditions.contains(childConditions[index].id)) {
+                    selectedConditions.remove(childConditions[index].id);
                   } else {
                     selectedConditions.add(childConditions[index].id);
                   }

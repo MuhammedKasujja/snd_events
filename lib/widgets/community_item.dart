@@ -2,9 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:snd_events/models/community.dart';
-import 'package:snd_events/screens/community_details.dart';
+import 'package:snd_events/screens/community_comments.dart';
 import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/app_utils.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CommunityItemWidget extends StatelessWidget {
   final double height;
@@ -20,16 +21,23 @@ class CommunityItemWidget extends StatelessWidget {
         child: Stack(
           children: <Widget>[
             Container(
-              height: this.height == null ? 150 : this.height,
-              width: 200,
+              height: this.height == null ? 200 : this.height,
+              // width: 240,
               decoration: BoxDecoration(
                   color: AppTheme.PrimaryDarkColor,
                   borderRadius: BorderRadius.all(Radius.circular(20.0)),
                   image: DecorationImage(
-                      image: NetworkImage(this.community.image),
-                      fit: BoxFit.fill)
+                    image: CachedNetworkImageProvider(this.community.image),
+                    fit: BoxFit.cover,
+                    // colorFilter: ColorFilter.mode(
+                    //     AppTheme.PrimaryAssentColor, BlendMode.colorBurn)
+                  )
                   //shape:
                   ),
+              // child: CachedNetworkImage(
+              //   imageUrl: this.community.image,
+              //   fit: BoxFit.fill,
+              // ),
             ),
             // Positioned(
             //     bottom: 0,
@@ -55,31 +63,37 @@ class CommunityItemWidget extends StatelessWidget {
                 child: ClipRect(
                   // child: BackdropFilter(
                   //   filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 0.9),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.1),
-                          borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(20.0),
-                              bottomRight: Radius.circular(20.0))),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          community.name,
-                          style: TextStyle(
-                              color: Colors.white,
-                              letterSpacing: 1,
-                              fontSize: 20),
-                        ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.1),
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(20.0),
+                            bottomRight: Radius.circular(20.0)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 6
+                              )
+                            ]),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        community.name,
+                        style: TextStyle(
+                            color: Colors.white,
+                            letterSpacing: 1,
+                            fontSize: 20),
                       ),
                     ),
-                 // ),
+                  ),
+                  // ),
                 ))
           ],
         ),
       ),
       onTap: () {
         AppUtils(context)
-            .nextPage(page: CommunityDetailsScreen(community: this.community));
+            .nextPage(page: CommunityCommentsScreen(community: this.community));
       },
     );
   }

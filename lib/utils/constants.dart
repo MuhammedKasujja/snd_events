@@ -6,6 +6,9 @@ class Constants{
   static const EDIT_PROFILE ="Edit Profile";
   static const PROFILE ="Profile";
   static const ADD_PROFFESION = "Add Proffesion";
+  static const EVENT_TYPE_SAVED ="Saved";
+  static const EVENT_TYPE_SUGGESTED ="Suggested";
+  static const EVENT_TYPE_GOING = "Going";
   static const HINT_EMAIL = "Email";
   static const HINT_NAME = "Name";
   static const HINT_PASSWORD = "Password";
@@ -15,6 +18,8 @@ class Constants{
   static const HINT_FIRSTNAME = "Firstname";
   static const HINT_LASTNAME = "Lastname";
   static const HINT_FILL_ALL_FIELDS = "Please fill all fields";
+  static const HINT_DISTRICT = "District";
+  static const HINT_DESCRIPTION = "Description";
 
   ///JSON KEY CODES
   static const KEY_CODE = "code";

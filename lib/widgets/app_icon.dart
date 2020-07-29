@@ -3,6 +3,9 @@ import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/constants.dart';
 
 class AppIcon extends StatelessWidget {
+  final Color textColor;
+
+  const AppIcon({Key key, this.textColor}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -18,11 +21,15 @@ class AppIcon extends StatelessWidget {
               style: TextStyle(
                   //fontWeight: FontWeight.bold,
                   fontSize: 30,
-                  color: AppTheme.PrimaryDarkColor),
+                  color: this.textColor == null
+                      ? AppTheme.PrimaryDarkColor
+                      : textColor),
             ),
           ),
         ),
-        SizedBox(height: 20,)
+        SizedBox(
+          height: 20,
+        )
       ],
     );
   }

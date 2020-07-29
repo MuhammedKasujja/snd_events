@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:snd_events/data/botton_nav_items.dart';
 import 'package:snd_events/data/repo.dart';
 import 'package:snd_events/screens/events.dart';
+import 'package:snd_events/screens/help.dart';
+import 'package:snd_events/screens/notifications.dart';
 import 'package:snd_events/screens/topicslist.dart';
 import 'package:snd_events/screens/user_profile.dart';
 import 'package:snd_events/states/app_state.dart';
@@ -18,11 +20,13 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin {
   int _currentIndex = 0;
   String token;
   String _profilePhoto;
   String _title = Constants.APP_NAME;
+  AppState appState;
   @override
   void initState() {
     this.token = widget.token;
@@ -34,17 +38,20 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       });
     }
-    Provider.of<AppState>(context, listen: false).getUserData();
+    appState = Provider.of<AppState>(context, listen: false);
+    appState.getUserData();
+    appState.loadInitialData();
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final appState = Provider.of<AppState>(context);
+    super.build(context);
     return SafeArea(
       top: false,
       child: Scaffold(
+        backgroundColor: Colors.grey[200],
         appBar: AppBar(
           backgroundColor: AppTheme.PrimaryDarkColor,
           title: Text(_title),
@@ -92,6 +99,12 @@ class _HomeScreenState extends State<HomeScreen> {
             if (index == 0) {
               AppUtils(context).nextPage(page: TopicsListScreen());
             }
+            if (index == 1) {
+              AppUtils(context).nextPage(page: HelpScreen());
+            }
+            if (index == 2) {
+              AppUtils(context).nextPage(page: NotificationsScreen());
+            }
           },
           items: allDestinations.map((destination) {
             return BottomNavigationBarItem(
@@ -103,4 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

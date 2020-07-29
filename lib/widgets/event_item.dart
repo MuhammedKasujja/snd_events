@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:snd_events/models/event.dart';
@@ -36,8 +37,12 @@ class EventItemWidget extends StatelessWidget {
                     height: 100,
                     decoration: BoxDecoration(
                         color: Colors.grey[100],
+                        borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(5),
+                            bottomRight: Radius.circular(5)),
                         image: DecorationImage(
-                            image: NetworkImage(this.event.photo), fit: BoxFit.fill)),
+                            image: CachedNetworkImageProvider(this.event.photo),
+                            fit: BoxFit.fill)),
                   ),
                 ),
                 Column(

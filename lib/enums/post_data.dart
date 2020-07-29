@@ -1,0 +1,4 @@
+enum PostData{
+  Save,
+  Update
+}

@@ -4,14 +4,18 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snd_events/data/urls.dart';
+import 'package:snd_events/enums/post_data.dart';
 import 'package:snd_events/models/child_conditions.dart';
 import 'package:snd_events/models/community.dart';
 import 'package:snd_events/models/event.dart';
+import 'package:snd_events/models/event_comment.dart';
+import 'package:snd_events/models/question.dart';
 import 'package:snd_events/models/topic.dart';
 import 'package:snd_events/models/user.dart';
 import 'package:snd_events/utils/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:snd_events/enums/event_type.dart';
+import 'package:snd_events/models/answer.dart';
 //
 // Uploading media files
 //
@@ -96,12 +100,10 @@ class Repository {
     return json.decode(res.body);
   }
 
-  Future<User> getUserProfile(token) async {
-    var res = await http.get(
-      Urls.USER_PROFILE,
-      headers: {HttpHeaders.authorizationHeader: 'Token $token'},
-    );
-    var user = User.fromJson(json.decode(res.body));
+  Future<User> getUserProfile() async {
+    var res = await dio.get(Urls.USER_PROFILE);
+    // print(res.data);
+    var user = User.fromJson(res.data);
     print(user.email);
     print(user.children.length);
     return user;
@@ -123,72 +125,66 @@ class Repository {
     return res.data;
   }
 
-  Future<Map> addEvent(
-      {token,
-      theme,
-      startDate,
-      endDate,
-      locationDistrict,
-      buildingStreet,
-      speaker,
-      startTime,
-      endTime,
-      country,
-      File file}) async {
-    var dio = Dio();
-    dio.options.headers.addAll({
-      HttpHeaders.authorizationHeader: 'Token $token',
-      // HttpHeaders.contentTypeHeader: 'application/json'
-    });
-    var res = await dio
-        .post(Urls.ADD_MEETUP,
-            data: FormData.fromMap({
-              'theme': theme,
-              "start_date": startDate,
-              "start_time": startTime,
-              "location_district": locationDistrict,
-              "building_street": buildingStreet,
-              "speaker": speaker,
-              "end_date": endDate,
-              "end_time": endTime,
-              "location_country": country,
-              "photo": await _createMultipartFile(file),
-            }))
-        .catchError((onError) {
-      print(onError);
-    });
-
-    print(res.data);
+  Future<Map> approveAnswer(answerID) async {
+    var res = await dio.get(Urls.APPROVE_ANSWER+"/$answerID/");
     return res.data;
   }
 
-  Future<Map> addCommunity(
-      {token,
-      name,
-      desc,
-      locationDistrict,
-      topics,
-      country,
-      File photo}) async {
-    var dio = Dio();
-    dio.options.headers.addAll({
-      HttpHeaders.authorizationHeader: 'Token $token',
-      HttpHeaders.contentTypeHeader: 'application/json'
+  Future<Map> addEditEvent(
+      {Event event, PostData postType = PostData.Save, eventId}) async {
+    print(event.photo);
+    var res;
+    var formData = FormData.fromMap({
+      'theme': event.theme,
+      "start_date": event.startDate,
+      "start_time": event.startTime,
+      "location_district": event.locDistrict,
+      "building_street": event.street,
+      "speaker": event.speaker,
+      "end_date": event.endDate,
+      "organizer": event.organizer,
+      "end_time": event.endTime,
+      "location_country": event.country,
+      "photo": await _createMultipartFile(event.photo),
     });
-    var res = await dio
-        .post(Urls.ADD_COMMUNITY,
-            data: FormData.fromMap({
-              "name": name,
-              'describe': desc,
-              'location_district': locationDistrict,
-              'topics': topics,
-              'location_country': country,
-              'image': await _createMultipartFile(photo),
-            }))
-        .catchError((onError) {
-      print(onError);
-      //return {'ServerError' : onError};
+    if (postType == PostData.Update) {
+      res = await dio
+          .put(Urls.EDIT_MEETUP + "/$eventId/", data: formData)
+          .catchError((onError) {
+        print('UpdatingData:  $onError');
+      });
+    } 
+    if(postType == PostData.Save) {
+      res =
+          await dio.post(Urls.ADD_MEETUP, data: formData).catchError((onError) {
+        print(onError);
+      });
+    }
+    // print(res.data);
+    return res.data;
+  }
+
+  Future<Map> addEditCommunity(
+      {Community community,
+      PostData postType = PostData.Save,
+      communityId}) async {
+    print(community.image);
+    var formData = FormData.fromMap({
+      "name": community.name,
+      'describe': community.description,
+      'location_district': community.locDistrict,
+      'topics': [1, 2],
+      // 'topics': List<int>.from(community.topics),
+      'location_country': community.country,
+      'image': await _createMultipartFile(community.image),
     });
+    var res;
+    if (postType == PostData.Update) {
+      res =
+          await dio.put(Urls.EDIT_COMMUNITY + "/$communityId/", data: formData);
+    } else {
+      res = await dio.post(Urls.ADD_COMMUNITY, data: formData);
+    }
 
     return res.data;
   }
@@ -237,11 +233,11 @@ class Repository {
     return data;
   }
 
-  Future<Map> updateProfile({name, email, File file}) async {
+  Future<Map> updateProfile({name, email, String filePath}) async {
     var formData = FormData.fromMap({
       // "name": name,
       // "email": email,
-      "photo": await _createMultipartFile(file),
+      "photo": await _createMultipartFile(filePath),
     });
     var res =
         await dio.put(Urls.PHOTO_UPDATE, data: formData).catchError((onError) {
@@ -250,24 +246,71 @@ class Repository {
     return res.data;
   }
 
-  Future<List<Event>> getMyMeetups(EventType eventType, {token}) async {
+  Future<Map> askQuestion({question, List topics}) async {
+    var formData = FormData.fromMap({
+      "quest": question,
+      "topics": topics,
+    });
+    var res =
+        await dio.post(Urls.QUESTIONS, data: formData).catchError((onError) {
+      print("Catch Error: $onError");
+    });
+    print(res.data);
+    return res.data;
+  }
+
+  Future<List<Question>> fetchQuestions() async {
+    var res = await dio
+        .get(
+      Urls.QUESTIONS,
+    )
+        .catchError((onError) {
+      print("Catch Error: $onError");
+    });
+    var listQuestions = (res.data['response'] as List).map((m) {
+      return Question.fromJson(m);
+    }).toList();
+    // print(res.data);
+    return listQuestions;
+  }
+
+  Future<Map> answerQuestion({answer, questioID}) async {
+    var res = await dio.post(Urls.QUESTION_ANSWER + "/$questioID/",
+        data: {'text': answer}).catchError((onError) {
+      print("Catch Error: $onError");
+    });
+    print(res.data);
+    return res.data;
+  }
+
+  Future<List<Answer>> fetchQuestionAnswers(questioID) async {
+    var res = await dio
+        .get(
+      Urls.QUESTION_ANSWER + "/$questioID/",
+    )
+        .catchError((onError) {
+      print("Catch Error: $onError");
+    });
+    print(res.data);
+    var listAnswers = (res.data['response'] as List).map((m) {
+      return Answer.fromJson(m);
+    }).toList();
+    return listAnswers;
+  }
+
+  Future<List<Event>> getMyMeetups(EventType eventType) async {
     var url;
     if (eventType == EventType.Going) url = Urls.MY_MEETUPS;
     if (eventType == EventType.Saved) url = Urls.SAVED_MEETUPS;
     if (eventType == EventType.Suggested) url = Urls.SUGGESTED_MEETUPS;
-
-    var dio = new Dio();
-    dio.options.headers.addAll({
-      HttpHeaders.authorizationHeader: 'Token $token',
-      HttpHeaders.contentTypeHeader: 'application/json'
-    });
     var res = await dio.get(url).catchError((onError) {
       print("Catch Error: $onError");
     });
-    // print('Data: ${res.data}');
-    var listEvents = (res.data['results'] as List)
-        .map((m) => new Event.fromJson(m))
-        .toList();
+    // print(res.data);
+    var listEvents = (res.data['results'] as List).map((m) {
+      if (eventType == EventType.Saved) m['is_saved'] = true;
+      return Event.fromJson(m);
+    }).toList();
     return listEvents;
   }
 
@@ -276,17 +319,13 @@ class Repository {
       print("GroupsError: $onError");
       print("Catch Error: $onError");
     });
+    // print(res.data);
     return (res.data['response'] as List)
         .map((m) => new Community.fromJson(m))
         .toList();
   }
 
-  Future<List<ChildCondition>> getChildConditions({token}) async {
-    var dio = new Dio();
-    dio.options.headers.addAll({
-      HttpHeaders.authorizationHeader: 'Token $token',
-      HttpHeaders.contentTypeHeader: 'application/json'
-    });
+  Future<List<ChildCondition>> getChildConditions() async {
     var res = await dio.get(Urls.CHILD_CONDITIONS).catchError((onError) {
       print("Catch Error: $onError");
     });
@@ -297,10 +336,44 @@ class Repository {
     return conditions;
   }
 
-  Future<Map> groupComment({ comment, groupId}) async {
-    var res = await dio.get(Urls.CHILD_CONDITIONS).catchError((onError) {
+  Future<List<EventComment>> groupComment(groupId) async {
+    var res = await dio
+        .get(Urls.LIST_GROUP_COMMENTS + "/$groupId/")
+        .catchError((onError) {
       print("Catch Error: $onError");
     });
+    var comments = (res.data['comments'] as List)
+        .map((m) => EventComment.fromJson(m))
+        .toList();
+    return comments;
+  }
+
+  Future<List<EventComment>> eventComment(eventId) async {
+    var url = Urls.LIST_MEETUP_COMMENTS + "/$eventId/";
+    var res = await dio.get(url).catchError((onError) {
+      print("Catch Error: $onError");
+    });
+    var comments = (res.data['comments'] as List)
+        .map((m) => EventComment.fromJson(m))
+        .toList();
+    return comments;
+  }
+
+  Future<Map> makeEventComment(eventId, text) async {
+    var url = Urls.LIST_MEETUP_COMMENTS + "/$eventId/";
+    var res = await dio.post(url, data: {'text': text}).catchError((onError) {
+      print("Catch Error: $onError");
+    });
+    // print(res.data);
+    return res.data;
+  }
+
+  Future<Map> makeGroupComment(groupId, text) async {
+    var url = Urls.LIST_GROUP_COMMENTS + "/$groupId/";
+    var res = await dio.post(url, data: {'text': text}).catchError((onError) {
+      print("Catch Error: $onError");
+    });
+    // print(res.data);
     return res.data;
   }
 
@@ -308,18 +381,56 @@ class Repository {
     var res = await dio.get(Urls.MY_TOPICS).catchError((onError) {
       print("Catch Error: $onError");
     });
-   // print(res.data);
+    print(res.data);
     var listTopics = (res.data['results'] as List)
         .map((m) => new Topic.fromJson(m))
         .toList();
     return listTopics;
   }
 
-  Future<MultipartFile> _createMultipartFile(File file) async {
-    var fileName = file.path.split('/').last;
+  Future<MultipartFile> _createMultipartFile(String filePath) async {
+    var fileName = filePath.split('/').last;
     var ext = fileName.split(".")[1];
-    var futureFile = await MultipartFile.fromFile(file.path,
+    var futureFile = await MultipartFile.fromFile(filePath,
         filename: fileName, contentType: MediaType('image', '$ext'));
     return futureFile;
+  }
+
+  Future<Map> attendOrDontAttendEvent(eventId) async {
+    var url = Urls.ATTEND_DONT_ATTEND_MEETUP + "/$eventId/";
+    var res = await dio
+        .get(
+      url,
+    )
+        .catchError((onError) {
+      print("Catch Error: $onError");
+    });
+    print(res.data);
+    return res.data;
+  }
+
+  Future<Map> saveRemoveEvent(eventId) async {
+    var url = Urls.SAVE_REMOVE_MEETUP + "/$eventId/";
+    var res = await dio
+        .get(
+      url,
+    )
+        .catchError((onError) {
+      print("Catch Error: $onError");
+    });
+    print(res.data);
+    return res.data;
+  }
+
+  Future<Map> joinOrLeaveGroup(groupId) async {
+    var url = Urls.JOIN_LEAVE_GROUP + "/$groupId/";
+    var res = await dio
+        .get(
+      url,
+    )
+        .catchError((onError) {
+      print("Catch Error: $onError");
+    });
+    return res.data;
   }
 }

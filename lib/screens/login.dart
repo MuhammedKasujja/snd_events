@@ -5,7 +5,6 @@ import 'package:snd_events/screens/register.dart';
 import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/app_utils.dart';
 import 'package:snd_events/utils/constants.dart';
-import 'package:snd_events/widgets/app_icon.dart';
 import 'package:snd_events/widgets/other_option.dart';
 import 'package:snd_events/widgets/submit_button.dart';
 import 'package:snd_events/widgets/textfield.dart';
@@ -24,16 +23,38 @@ class _LoginScreenState extends State<LoginScreen> {
       child: SafeArea(
         child: Scaffold(
             body: Container(
-          child: Center(
-            child: SingleChildScrollView(
-              child: Padding(
+          child: ListView(
+            children: <Widget>[
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Align(
+                      child: Text(
+                        Constants.APP_NAME,
+                        style: TextStyle(fontSize: 30, color: Colors.white),
+                      ),
+                      alignment: Alignment.center,
+                    ),
+                    // Align(child: Icon(Icons.event_seat),)
+                  ],
+                ),
+                width: double.infinity,
+                height: MediaQuery.of(context).size.height / 3,
+                decoration: BoxDecoration(
+                    color: AppTheme.PrimaryColor,
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(15),
+                        bottomRight: Radius.circular(15))),
+              ),
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: <Widget>[
-                    AppIcon(),
                     Text(Constants.LOGIN,
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
+                            fontWeight: FontWeight.bold, fontSize: 20)),
                     SizedBox(
                       height: 10,
                     ),
@@ -86,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-            ),
+            ],
           ),
         )),
       ),

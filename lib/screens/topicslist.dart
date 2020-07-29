@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:snd_events/models/topic.dart';
 import 'package:snd_events/screens/add_topic.dart';
 import 'package:snd_events/states/app_state.dart';
+import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/app_utils.dart';
 import 'package:snd_events/widgets/event_loading.dart';
 
@@ -18,9 +19,8 @@ class _TopicsListScreenState extends State<TopicsListScreen> {
   AppState appState;
   @override
   void initState() {
-    futureTopics = Provider.of<AppState>(context, listen: false).getTopics();
-    // appState = Provider.of<AppState>(context, listen: false);
-    // appState.getTopics();
+    appState = Provider.of<AppState>(context, listen: false);
+    futureTopics = appState.getTopics();
     super.initState();
   }
 
@@ -87,6 +87,18 @@ class _TopicsListScreenState extends State<TopicsListScreen> {
               ),
             );
           }
+          if (!snapshot.hasData) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Align(
+                alignment: Alignment.center,
+                child: InkWell(
+                  child: Container(
+                      height: 30, width: 50, child: Text("No data found")),
+                ),
+              ),
+            );
+          }
           return _buildTopicList(snapshot.data);
         },
       )),
@@ -96,11 +108,42 @@ class _TopicsListScreenState extends State<TopicsListScreen> {
   Widget _buildTopicList(List<Topic> topics) => ListView.builder(
         itemCount: topics.length,
         itemBuilder: (context, index) {
+          var topic = topics[index];
+          var parts = topic.time.split("T");
+
           return ListTile(
-            title: Text(topics[index].title),
-            trailing: Text(topics[index]
-                .time
-                .replaceRange(19, topics[index].time.length, '')),
+            leading: CircleAvatar(
+              child: Icon(Icons.person),
+            ),
+            title: Text(topic.title),
+            subtitle: Row(
+              children: <Widget>[
+                // Icon(
+                //   Icons.access_time,
+                //   color: Colors.grey[400],
+                //   size: 15,
+                // ),
+                Text('Published'),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  parts[0],
+                  // topic.time.replaceRange(19, topic.time.length, ''),
+                  // topics[index].details,
+                ),
+                SizedBox(
+                  width: 6,
+                ),
+                Text(parts[1].replaceRange(5, parts[1].length, ''))
+              ],
+            ),
+            trailing: IconButton(
+                icon: Icon(
+                  Icons.arrow_drop_down,
+                  color: AppTheme.PrimaryDarkColor,
+                ),
+                onPressed: null),
             onTap: () {},
           );
         },
