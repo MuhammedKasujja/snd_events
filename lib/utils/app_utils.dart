@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:snd_events/utils/app_theme.dart';
@@ -38,12 +39,39 @@ class AppUtils {
   static Future<File> getImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker
-        .getImage(source: ImageSource.gallery,)
+        .getImage(
+      source: ImageSource.gallery,
+    )
         .catchError((onError) {
       print(onError);
     });
+    final file = await FlutterImageCompress.compressAndGetFile(
+        pickedFile.path, pickedFile.path,
+        minHeight: 600,
+        minWidth: 800,
+        quality: 88,
+      );
     // return pickedFile != null ? File(pickedFile.path) : null;
-    return File(pickedFile.path);
+    // return File(pickedFile.path);
+    return file;
+  }
+
+  static String eventMonth(String formattedDate) {
+    var date = DateTime.parse(formattedDate);
+    var strMonth = '';
+    if (date.month == 1) strMonth = 'JAN';
+    if (date.month == 2) strMonth = 'FEB';
+    if (date.month == 3) strMonth = 'MAR';
+    if (date.month == 4) strMonth = 'APR';
+    if (date.month == 5) strMonth = 'MAY';
+    if (date.month == 6) strMonth = 'JUN';
+    if (date.month == 7) strMonth = 'JUL';
+    if (date.month == 8) strMonth = 'AUG';
+    if (date.month == 9) strMonth = 'SEP';
+    if (date.month == 10) strMonth = 'OCT';
+    if (date.month == 11) strMonth = 'NOV';
+    if (date.month == 12) strMonth = 'DEC';
+    return strMonth;
   }
 
   static Future<MultipartFile> createMultipartFile(String filepath) async {

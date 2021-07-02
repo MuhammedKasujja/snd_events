@@ -20,74 +20,85 @@ class CommunityItemWidget extends StatelessWidget {
         padding: const EdgeInsets.all(2.0),
         child: Stack(
           children: <Widget>[
-            Container(
-              height: this.height == null ? 200 : this.height,
-              // width: 240,
-              decoration: BoxDecoration(
-                  color: AppTheme.PrimaryDarkColor,
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                  image: DecorationImage(
-                    image: CachedNetworkImageProvider(this.community.image),
-                    fit: BoxFit.cover,
-                    // colorFilter: ColorFilter.mode(
-                    //     AppTheme.PrimaryAssentColor, BlendMode.colorBurn)
-                  )
-                  //shape:
-                  ),
-              // child: CachedNetworkImage(
-              //   imageUrl: this.community.image,
-              //   fit: BoxFit.fill,
-              // ),
+            ShaderMask(
+              shaderCallback: (Rect bounds) {
+                return LinearGradient(
+                  begin: Alignment.center,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.white, Colors.black54],
+                ).createShader(bounds);
+              },
+              child: Container(
+                width: double.infinity,
+                height: this.height == null ? 200 : this.height,
+                decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    image: DecorationImage(
+                      image: CachedNetworkImageProvider(this.community.image),
+                      fit: BoxFit.cover,
+                    )),
+              ),
             ),
-            // Positioned(
-            //     bottom: 0,
-            //     right: 0,
-            //     child: Container(
-            //         decoration: BoxDecoration(
-            //             color: Colors.white,
-            //             borderRadius: BorderRadius.only(
-            //                 topLeft: Radius.circular(20),
-            //                 bottomRight: Radius.circular(20))),
-            //         child: Padding(
-            //           padding: const EdgeInsets.only(
-            //               top: 6, bottom: 6, right: 10, left: 10),
-            //           child: Text(
-            //             "Join",
-            //             style: TextStyle(color: AppTheme.PrimaryDarkColor),
-            //           ),
-            //         )))
             Positioned(
-                bottom: 0.0,
                 left: 0.0,
+                bottom: 0.0,
                 right: 0.0,
-                child: ClipRect(
-                  // child: BackdropFilter(
-                  //   filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 0.9),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.1),
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(20.0),
-                            bottomRight: Radius.circular(20.0)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 6
-                              )
-                            ]),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        community.name,
-                        style: TextStyle(
-                            color: Colors.white,
-                            letterSpacing: 1,
-                            fontSize: 20),
-                      ),
-                    ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    community.name,
+                    style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
-                  // ),
                 ))
+
+                
+            // Container(
+            //   height: this.height == null ? 200 : this.height,
+            //   // width: 240,
+            //   decoration: BoxDecoration(
+            //       color: AppTheme.PrimaryDarkColor,
+            //       borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            //       image: DecorationImage(
+            //         image: CachedNetworkImageProvider(this.community.image),
+            //         fit: BoxFit.cover,
+            //         // colorFilter: ColorFilter.mode(
+            //         //     AppTheme.PrimaryAssentColor, BlendMode.colorBurn)
+            //       )
+            //       //shape:
+            //       ),
+            //   // child: CachedNetworkImage(
+            //   //   imageUrl: this.community.image,
+            //   //   fit: BoxFit.fill,
+            //   // ),
+            // ),
+            // Positioned(
+            //     bottom: 0.0,
+            //     left: 0.0,
+            //     right: 0.0,
+            //     child: Container(
+            //       decoration: BoxDecoration(
+            //           color: Colors.black.withOpacity(0.1),
+            //           borderRadius: BorderRadius.only(
+            //               bottomLeft: Radius.circular(20.0),
+            //               bottomRight: Radius.circular(20.0)),
+            //               boxShadow: [
+            //                 BoxShadow(
+            //                   color: Colors.black.withOpacity(0.1),
+            //                   blurRadius: 6
+            //                 )
+            //               ]),
+            //       child: Padding(
+            //         padding: const EdgeInsets.all(8.0),
+            //         child: Text(
+            //           community.name,
+            //           style: TextStyle(
+            //               color: Colors.white,
+            //               letterSpacing: 1,
+            //               fontSize: 20),
+            //         ),
+            //       ),
+            //     ))
           ],
         ),
       ),

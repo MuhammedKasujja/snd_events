@@ -6,6 +6,7 @@ import 'package:snd_events/models/child_conditions.dart';
 import 'package:snd_events/models/community.dart';
 import 'package:snd_events/models/event.dart';
 import 'package:snd_events/models/event_comment.dart';
+import 'package:snd_events/models/notification.dart';
 import 'package:snd_events/models/question.dart';
 import 'package:snd_events/models/user.dart';
 import 'package:snd_events/utils/constants.dart';
@@ -16,6 +17,7 @@ class AppState with ChangeNotifier {
   List<Community> communities;
   Map<String, dynamic> userRefs = {};
   List<ChildCondition> _childConditions;
+  List<Question> listQuestions;
   List<Topic> _topics;
   List<Topic> get topics => _topics;
   List<ChildCondition> get childConditions => _childConditions;
@@ -60,19 +62,14 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<List<Topic>> getTopics() async {
+  Future<List<Topic>> fetchTopics() async {
     var res =
-        await Repository(token: userToken).getTopics().catchError((onError) {
+        await repo.fetchTopics().catchError((onError) {
       print(onError);
     });
     _topics = res;
     notifyListeners();
     return res;
-  }
-
-  void addTopic(Topic topic) async {
-    _topics.insert(0, topic);
-    notifyListeners();
   }
 
   Future<User> getUserData() async {
@@ -87,6 +84,7 @@ class AppState with ChangeNotifier {
       print(onError);
     });
     communities = _communities;
+    notifyListeners();
     return _communities;
   }
 
@@ -147,6 +145,7 @@ class AppState with ChangeNotifier {
       print(onError);
     });
     _childConditions = data;
+    notifyListeners();
     return data;
   }
 
@@ -185,6 +184,8 @@ class AppState with ChangeNotifier {
     var res = await repo.fetchQuestions().catchError((onError) {
       print(onError);
     });
+    listQuestions = res;
+    notifyListeners();
     return res;
   }
 
@@ -205,11 +206,46 @@ class AppState with ChangeNotifier {
   }
 
   Future<Map> approveAnswer(answerID) async {
-    var res = await repo
-        .approveAnswer(answerID)
-        .catchError((onError) {
+    var res = await repo.approveAnswer(answerID).catchError((onError) {
       print(onError);
     });
     return res;
+  }
+
+  Future<List<NotificationModel>> fetchNotifications() async {
+    var data = await Future.delayed(Duration(seconds: 6), () {
+      var notEvent = NotificationModel(
+          id: 34,
+          time: '8',
+          date: '22/08/2020',
+          sender: 'Ayyego',
+          sourceType: 'event',
+          source: 'Child Abuse',
+          message:
+              'This should not be done to any child because of their gender either');
+      var notGroup = NotificationModel(
+          id: 34,
+          time: '3',
+          date: '22/08/2020',
+          sender: 'Muhammed',
+          sourceType: 'group',
+          source: 'Iwe',
+          message: 'this is awesome but do u fee the same');
+
+      var notifications = [
+        notEvent,
+        notGroup,
+        notEvent,
+        notEvent,
+        notGroup,
+        notEvent,
+        notGroup,
+        notEvent
+      ];
+
+      return notifications;
+    });
+
+    return data;
   }
 }

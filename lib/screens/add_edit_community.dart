@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 // import 'package:flutter_multi_chip_select/flutter_multi_chip_select.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
@@ -15,12 +16,11 @@ import 'package:snd_events/widgets/textfield.with.controller.dart';
 import 'package:snd_events/enums/post_data.dart';
 
 class AddCommunityScreen extends StatefulWidget {
-  final String userToken;
   final Community community;
   final Function(Community community) updateCommunity;
 
   const AddCommunityScreen(
-      {Key key, this.userToken, this.community, this.updateCommunity})
+      {Key key, this.community, this.updateCommunity})
       : super(key: key);
   @override
   _AddCommunityScreenState createState() => _AddCommunityScreenState();
@@ -39,14 +39,14 @@ class _AddCommunityScreenState extends State<AddCommunityScreen> {
   AppState appState;
   // final _multiSelectKey = GlobalKey<MultiSelectDropdownState>();
 
-  final Geolocator _geolocator = Geolocator();
   Future<void> _onLookupCoordinatesPressed(
-      BuildContext context, position) async {
+      BuildContext context, Position  pos) async {
+        
     final List<Placemark> placemarks =
-        await Future(() => _geolocator.placemarkFromPosition(position))
+        await Future(() => placemarkFromCoordinates(pos.latitude, pos.longitude))
             .catchError((onError) {
       AppUtils.showToast("${onError.toString()}");
-      return Future.value(List<Placemark>());
+      return Future.value(<Placemark>[]);
     });
 
     if (placemarks != null && placemarks.isNotEmpty) {
@@ -85,7 +85,7 @@ class _AddCommunityScreenState extends State<AddCommunityScreen> {
   }
 
   _getUserPosition() async {
-    await _geolocator.getCurrentPosition().then((pos) {
+    await Geolocator.getCurrentPosition().then((pos) {
       _onLookupCoordinatesPressed(context, pos);
     });
   }

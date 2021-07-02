@@ -10,7 +10,6 @@ import 'package:snd_events/widgets/description_textfield.dart';
 import 'package:snd_events/widgets/loading.dart';
 import 'package:snd_events/widgets/submit_button.dart';
 import 'package:snd_events/widgets/textfield.dart';
-import 'package:snd_events/models/topic.dart';
 
 class AddTopicScreen extends StatefulWidget {
   final String userToken;
@@ -85,11 +84,7 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
                         conditions: selectedConditions)
                     .then((data) {
                   AppUtils.showToast(data[Constants.KEY_RESPONSE]);
-                  var topic = Topic(
-                      title: title,
-                      time: DateTime.now().toString(),
-                      details: _desc);
-                  appState.addTopic(topic);
+                  appState.fetchNotifications();
                   print(data);
                 });
               }),

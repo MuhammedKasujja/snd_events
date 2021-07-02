@@ -7,6 +7,8 @@ class Community {
   String country;
   int id;
   String createdBy;
+  bool isCreator;
+  bool isMember;
 
   Community(
       {this.id,
@@ -16,7 +18,8 @@ class Community {
       this.topics,
       this.locDistrict,
       this.country,
-      this.createdBy});
+      this.createdBy,
+       this.isMember, this.isCreator});
 
   factory Community.fromJson(Map<String, dynamic> json) {
     return Community(
@@ -27,6 +30,8 @@ class Community {
         locDistrict: json['location_district'],
         country: json['location_country'],
         topics: json['topics'],
-        createdBy: json['created_by']);
+        createdBy: json['creator'],
+        isCreator: json['created_by'],
+        isMember: json['is_member']);
   }
 }

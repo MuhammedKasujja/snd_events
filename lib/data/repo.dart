@@ -33,7 +33,7 @@ class Repository {
     }
   }
   Future<Map> register({name, email, password, country, city}) async {
-    var res = await http.post(Urls.REGISTER, body: {
+    var res = await http.post(Uri.parse(Urls.REGISTER), body: {
       "email": email,
       "password1": password,
       "password2": password,
@@ -49,7 +49,7 @@ class Repository {
   }
 
   Future<Map> login({email, password}) async {
-    var res = await http.post(Urls.LOGIN, body: {
+    var res = await http.post(Uri.parse(Urls.LOGIN), body: {
       "email": email,
       "password": password,
     }).catchError((onError) {
@@ -89,7 +89,7 @@ class Repository {
   }
 
   Future changePassword({token, oldPassword, newPassword}) async {
-    var res = await http.put(Urls.CHANGE_PASSWORD, headers: {
+    var res = await http.put(Uri.parse(Urls.CHANGE_PASSWORD), headers: {
       HttpHeaders.authorizationHeader: 'Token $token'
     }, body: {
       'old_password': oldPassword,
@@ -102,7 +102,7 @@ class Repository {
 
   Future<User> getUserProfile() async {
     var res = await dio.get(Urls.USER_PROFILE);
-    // print(res.data);
+    //  print('Profile: ${res.data}');
     var user = User.fromJson(res.data);
     print(user.email);
     print(user.children.length);
@@ -126,13 +126,15 @@ class Repository {
   }
 
   Future<Map> approveAnswer(answerID) async {
-    var res = await dio.get(Urls.APPROVE_ANSWER+"/$answerID/");
+    var res = await dio.get(Urls.APPROVE_ANSWER + "/$answerID/");
     return res.data;
   }
 
   Future<Map> addEditEvent(
       {Event event, PostData postType = PostData.Save, eventId}) async {
     print(event.photo);
+    print("EventID: $eventId");
+    // print('Map: ${event.toMap()}');
     var res;
     var formData = FormData.fromMap({
       'theme': event.theme,
@@ -148,13 +150,15 @@ class Repository {
       "photo": await _createMultipartFile(event.photo),
     });
     if (postType == PostData.Update) {
+      // var url = Urls.EDIT_MEETUP + "/$eventId/";
+      // print(url);
       res = await dio
           .put(Urls.EDIT_MEETUP + "/$eventId/", data: formData)
           .catchError((onError) {
         print('UpdatingData:  $onError');
       });
-    } 
-    if(postType == PostData.Save) {
+    }
+    if (postType == PostData.Save) {
       res =
           await dio.post(Urls.ADD_MEETUP, data: formData).catchError((onError) {
         print(onError);
@@ -176,7 +180,7 @@ class Repository {
       'topics': [1, 2],
       // 'topics': List<int>.from(community.topics),
       'location_country': community.country,
-      'image': await _createMultipartFile(community.image),
+      'photo': await _createMultipartFile(community.image),
     });
     var res;
     if (postType == PostData.Update) {
@@ -270,7 +274,7 @@ class Repository {
     var listQuestions = (res.data['response'] as List).map((m) {
       return Question.fromJson(m);
     }).toList();
-    // print(res.data);
+    print('Questions: ${res.data}');
     return listQuestions;
   }
 
@@ -291,7 +295,7 @@ class Repository {
         .catchError((onError) {
       print("Catch Error: $onError");
     });
-    print(res.data);
+    print('Answers: ${res.data}');
     var listAnswers = (res.data['response'] as List).map((m) {
       return Answer.fromJson(m);
     }).toList();
@@ -306,7 +310,7 @@ class Repository {
     var res = await dio.get(url).catchError((onError) {
       print("Catch Error: $onError");
     });
-    // print(res.data);
+    print('Events: ${res.data}');
     var listEvents = (res.data['results'] as List).map((m) {
       if (eventType == EventType.Saved) m['is_saved'] = true;
       return Event.fromJson(m);
@@ -319,7 +323,7 @@ class Repository {
       print("GroupsError: $onError");
       print("Catch Error: $onError");
     });
-    // print(res.data);
+    print('Groups: ${res.data}');
     return (res.data['response'] as List)
         .map((m) => new Community.fromJson(m))
         .toList();
@@ -377,7 +381,7 @@ class Repository {
     return res.data;
   }
 
-  Future<List<Topic>> getTopics() async {
+  Future<List<Topic>> fetchTopics() async {
     var res = await dio.get(Urls.MY_TOPICS).catchError((onError) {
       print("Catch Error: $onError");
     });

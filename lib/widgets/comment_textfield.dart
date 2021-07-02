@@ -15,29 +15,34 @@ class _CommentWidgetState extends State<CommentWidget> {
   TextEditingController _controller = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 50,
-      width: double.infinity,
-      color: Colors.grey[300],
-      child: Padding(
-        padding: const EdgeInsets.only(left: 6),
-        child: TextField(
-          controller: _controller,
-          decoration: InputDecoration(
-               border: InputBorder.none,
-              hintText: 'comment ....',
-              suffixIcon: IconButton(
-                  icon: Icon(
-                    Icons.send,
-                    color: AppTheme.PrimaryDarkColor,
-                  ),
-                  onPressed: (){
-                    this.widget.onSendClicked(_controller.text);
-                  })),
+    return Padding(
+      padding:  EdgeInsets.only(left: 4, right: 4, bottom: 6),
+      child: Container(
+        height: 50,
+        width: double.infinity,
+        decoration: BoxDecoration(
+            color: Colors.grey[300], borderRadius: BorderRadius.circular(30)),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 14),
+          child: TextField(
+            controller: _controller,
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'comment ....',
+                suffixIcon: IconButton(
+                    icon: Icon(
+                      Icons.send,
+                      color: AppTheme.PrimaryDarkColor,
+                    ),
+                    onPressed: () {
+                      this.widget.onSendClicked(_controller.text);
+                    })),
+          ),
         ),
       ),
     );
   }
+
   @override
   void dispose() {
     _controller.dispose();

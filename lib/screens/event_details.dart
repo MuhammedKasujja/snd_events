@@ -284,7 +284,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             Padding(
                               padding: const EdgeInsets.only(left: textPadding),
                               child: Text(
-                                  '''${this.widget.event.startTime.replaceRange(5, 8, '')}  -  ${this.widget.event.endTime.replaceRange(5, 8, '')}'''),
+                                  '''${_formatTime(this.widget.event.startTime)}  -  ${_formatTime(this.widget.event.endTime)}'''),
                             ),
                           ],
                         ),
@@ -442,5 +442,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       widget.event.country = event.country;
       widget.event.organizer = event.organizer;
     });
+  }
+
+  String _formatTime(String time){
+    if(time.length > 5){
+      return time.replaceRange(5, 8, '');
+    }
+    return time;
   }
 }

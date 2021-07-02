@@ -14,94 +14,82 @@ class TopicsListScreen extends StatefulWidget {
 }
 
 class _TopicsListScreenState extends State<TopicsListScreen> {
-  Future<List<Topic>> futureTopics;
-
-  AppState appState;
-  @override
-  void initState() {
-    appState = Provider.of<AppState>(context, listen: false);
-    futureTopics = appState.getTopics();
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
+    var appState = Provider.of<AppState>(
+      context,
+    );
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Topics"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              AppUtils(context).nextPage(page: AddTopicScreen());
-            },
-          )
-        ],
-      ),
-      body:
-          // Container(
-          //   child: appState.topics == null ?
-          //   // LoadingWidget()
-          //   ListView.builder(
-          //         itemCount: 10,
-          //         itemBuilder: (context, index) {
-          //           return Shimmer.fromColors(
-          //               child: EventLoadingWidget(size: 60,),
-          //               baseColor: Colors.grey[400],
-          //               highlightColor: Colors.white);
-          //         })
-          //    : _buildTopicList(appState.topics),
-          // )
-          Container(
-              child: FutureBuilder<List<Topic>>(
-        future: futureTopics,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return ListView.builder(
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return Shimmer.fromColors(
-                      child: EventLoadingWidget(
-                        size: 60,
-                      ),
-                      baseColor: Colors.grey[400],
-                      highlightColor: Colors.white);
-                });
-          }
-          if (snapshot.hasError) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Align(
-                alignment: Alignment.center,
-                child: InkWell(
-                  child: Container(
-                      height: 30, width: 50, child: Text("Try again")),
-                  onTap: () {
-                    setState(() {
-                      futureTopics =
-                          Provider.of<AppState>(context, listen: false)
-                              .getTopics();
-                    });
+      // appBar: AppBar(
+      //   title: Text("Topics"),
+      //   actions: <Widget>[
+      //     IconButton(
+      //       icon: Icon(Icons.add),
+      //       onPressed: () {
+      //         AppUtils(context).nextPage(page: AddTopicScreen());
+      //       },
+      //     )
+      //   ],
+      // ),
+      body: Container(
+          child: appState.topics == null
+              ? FutureBuilder<List<Topic>>(
+                  future: appState.fetchTopics(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return ListView.builder(
+                          itemCount: 10,
+                          itemBuilder: (context, index) {
+                            return Shimmer.fromColors(
+                                child: EventLoadingWidget(
+                                  size: 60,
+                                ),
+                                baseColor: Colors.grey[400],
+                                highlightColor: Colors.white);
+                          });
+                    }
+                    if (snapshot.hasError) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: InkWell(
+                            child: Container(
+                                height: 30,
+                                width: 50,
+                                child: Text("Try again")),
+                            onTap: () {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      );
+                    }
+                    if (!snapshot.hasData) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: InkWell(
+                            child: Container(
+                                height: 30,
+                                width: 50,
+                                child: Text("No data found")),
+                          ),
+                        ),
+                      );
+                    }
+                    return _buildTopicList(snapshot.data);
                   },
-                ),
-              ),
-            );
-          }
-          if (!snapshot.hasData) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Align(
-                alignment: Alignment.center,
-                child: InkWell(
-                  child: Container(
-                      height: 30, width: 50, child: Text("No data found")),
-                ),
-              ),
-            );
-          }
-          return _buildTopicList(snapshot.data);
+                )
+              : _buildTopicList(appState.topics)),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppTheme.PrimaryColor,
+        onPressed: () {
+          AppUtils(context).nextPage(page: AddTopicScreen());
         },
-      )),
+        child: Icon(Icons.add),
+      ),
     );
   }
 

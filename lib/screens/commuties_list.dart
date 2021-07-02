@@ -1,18 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:snd_events/models/community.dart';
-import 'package:snd_events/screens/add_edit_community.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:snd_events/states/app_state.dart';
-import 'package:snd_events/utils/app_theme.dart';
-import 'package:snd_events/utils/app_utils.dart';
 import 'package:snd_events/widgets/community_item.dart';
+import 'package:snd_events/widgets/community_shimmer.dart';
 
 class CommunityListWidget extends StatefulWidget {
-  final String userToken;
-
-  const CommunityListWidget({Key key, @required this.userToken})
-      : super(key: key);
   @override
   _CommunityListState createState() => _CommunityListState();
 }
@@ -34,43 +28,47 @@ class _CommunityListState extends State<CommunityListWidget> {
         // color: Colors.grey[300],
         height: _imageHeight,
         child: appState.communities == null
-            ? Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: CircularProgressIndicator(
-                    backgroundColor: AppTheme.PrimaryDarkColor,
-                  ),
-                ),
+            ? FutureBuilder(
+                future: appState.getMyGroups(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return ListView.builder(
+                        itemCount: 10,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (ctx, index) {
+                          return Shimmer.fromColors(
+                              child: CommunityShimmer(),
+                              baseColor: Colors.grey[400],
+                              highlightColor: Colors.white);
+                        });
+                    // return Center(
+                    //     child: Padding(
+                    //   padding: const EdgeInsets.all(20.0),
+                    //   child: LoadingWidget(),
+                    // ));
+                  }
+                  if (snapshot.hasError) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: InkWell(
+                          child: Container(
+                              height: 30, width: 50, child: Text("Try again")),
+                          onTap: () {
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                    );
+                  }
+                  return groupList(snapshot.data);
+                },
               )
-            : groupList()
-        // ListView.builder(
-        //     itemCount: appState.communities.length + 1,
-        //     shrinkWrap: true,
-        //     scrollDirection: Axis.horizontal,
-        //     itemBuilder: (context, index) {
-        //       if (index == appState.communities.length) {
-        //         return Container(
-        //           child: Center(
-        //               child: IconButton(
-        //             icon: Icon(Icons.add),
-        //             onPressed: () {
-        //               AppUtils(context).nextPage(
-        //                   page: AddCommunityScreen(
-        //                       userToken: widget.userToken));
-        //             },
-        //           )),
-        //         );
-        //       }
-        //       return CommunityItemWidget(
-        //         community: appState.communities[index],
-        //       );
-        //     },
-        //   )
-        );
+            : groupList(appState.communities));
   }
 
-  Widget groupList() {
+  Widget groupList(List data) {
     return ListView(
       children: <Widget>[
         Container(
@@ -78,11 +76,11 @@ class _CommunityListState extends State<CommunityListWidget> {
           width: double.infinity,
           child: PageView.builder(
               controller: _pageController,
-              itemCount: appState.communities.length,
+              itemCount: data.length,
               itemBuilder: (context, index) {
                 // return _groupSelector(index);
                 return CommunityItemWidget(
-                  community: appState.communities[index],
+                  community: data[index],
                 );
               }),
         )
@@ -90,7 +88,7 @@ class _CommunityListState extends State<CommunityListWidget> {
     );
   }
 
-  Widget _groupSelector(int index) {
+  Widget groupSelector(int index) {
     return AnimatedBuilder(
       animation: _pageController,
       builder: (context, widget) {

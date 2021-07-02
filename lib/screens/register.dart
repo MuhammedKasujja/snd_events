@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:snd_events/data/repo.dart';
-import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/app_utils.dart';
 import 'package:snd_events/utils/constants.dart';
-import 'package:snd_events/widgets/app_icon.dart';
 import 'package:snd_events/widgets/country_dropdown.dart';
-import 'package:snd_events/widgets/other_option.dart';
 import 'package:snd_events/widgets/submit_button.dart';
 import 'package:snd_events/widgets/textfield.dart';
 
@@ -16,25 +13,34 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   String name, email, password, confirmPassword, _country = "UG", _city;
+  bool isSubmitting = false;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppTheme.PrimaryDarkColor,
-      child: SafeArea(
-        child: Scaffold(
-            body: Container(
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(Constants.REGISTER),
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(3),
+            child: Container(
+              width: double.infinity,
+              child: isSubmitting ? LinearProgressIndicator() : Container(),
+              color: Colors.black,
+            ),
+          ),
+        ),
+        body: Container(
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: <Widget>[
-                  AppIcon(),
-                  Text(
-                    Constants.REGISTER,
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  SizedBox(height: 10,),
+                  // AppIcon(),
+                  // Text(
+                  //   Constants.REGISTER,
+                  //   style:
+                  //       TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  // ),
+                  // SizedBox(height: 10,),
                   TextfieldWidget(
                     hint: Constants.HINT_NAME,
                     onTextChange: (value) {
@@ -43,13 +49,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       });
                     },
                   ),
-                  CountryDropdownWidget(onCountySelected: (country) { 
-                    print(country);
+                  CountryDropdownWidget(
+                    onCountySelected: (country) {
+                      print(country);
                       setState(() {
                         _country = country;
                       });
-                   },),
-                   TextfieldWidget(
+                    },
+                  ),
+                  TextfieldWidget(
                     hint: 'City',
                     onTextChange: (value) {
                       setState(() {
@@ -95,26 +103,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       AppUtils.showToast(Constants.HINT_FILL_ALL_FIELDS);
                     }
                   }),
-                  ORWidget(),
-                  OutlineButton(
-                    highlightedBorderColor: AppTheme.PrimaryDarkColor,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16,vertical: 8),
-                      child: Text(
-                        Constants.LOGIN,
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  )
+                  // ORWidget(),
+                  // OutlineButton(
+                  //   highlightedBorderColor: AppTheme.PrimaryDarkColor,
+                  //   child: Padding(
+                  //     padding: EdgeInsets.symmetric(horizontal: 16,vertical: 8),
+                  //     child: Text(
+                  //       Constants.LOGIN,
+                  //     ),
+                  //   ),
+                  //   onPressed: () {
+                  //     Navigator.pop(context);
+                  //   },
+                  // )
                 ],
               ),
             ),
           ),
-        )),
-      ),
-    );
+        ));
   }
 
   bool _validateFields() {
@@ -129,8 +135,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   _registerUser() {
+    _pageSubmitting(true);
     Repository()
-        .register(name: name, password: password, email: email, country: _country, city:_city)
+        .register(
+            name: name,
+            password: password,
+            email: email,
+            country: _country,
+            city: _city)
         .then((data) {
       if (data[Constants.KEY_CODE] == 0) {
         AppUtils.showToast(data[Constants.KEY_ERROR]);
@@ -139,10 +151,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
         AppUtils.showToast(data[Constants.KEY_RESPONSE]);
         print(data[Constants.KEY_RESPONSE]);
       }
+      _pageSubmitting(false);
+    }).catchError((onError) {
+      AppUtils.showToast(Constants.NETWORK_ERROR);
+      print(onError);
+      _pageSubmitting(false);
     });
   }
 
   bool _validatePassword() {
     return password == confirmPassword;
+  }
+
+  _pageSubmitting(bool showLoading) {
+    setState(() {
+      isSubmitting = showLoading;
+    });
   }
 }

@@ -3,9 +3,16 @@ class Answer {
   final String date;
   final String answeredBy;
   final String userPhoto;
-   int approved;
+  int approvals;
+  final String text;
 
-  Answer({this.id, this.date, this.answeredBy, this.userPhoto, this.approved});
+  Answer(
+      {this.id,
+      this.date,
+      this.answeredBy,
+      this.userPhoto,
+      this.approvals,
+      this.text});
 
   factory Answer.fromJson(Map<String, dynamic> json) {
     return Answer(
@@ -13,6 +20,7 @@ class Answer {
         date: json['date'],
         answeredBy: json['answered_by'],
         userPhoto: json['photo'],
-        approved: json['approval']);
+        text: json['text'],
+        approvals: json['approval']);
   }
 }

@@ -21,8 +21,7 @@ class CommunityDetailsScreen extends StatefulWidget {
 }
 
 class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
-  bool hasJoined = false;
-  bool isLoading = false;
+  bool isSubmitting = false;
   AppState _appState;
   File updatedImage;
   @override
@@ -36,6 +35,14 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Group Details"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(3),
+          child: Container(
+            width: double.infinity,
+            child: isSubmitting ? LinearProgressIndicator() : Container(),
+            color: Colors.black,
+          ),
+        ),
         // actions: <Widget>[
         //   widget.community.createdBy == _appState.user.email
         //       ? IconButton(
@@ -70,7 +77,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                   tag: this.widget.community.image,
                   child: Container(
                     width: double.infinity,
-                    height: 200,
+                    height: 180,
                     decoration: BoxDecoration(
                         color: Colors.grey[300],
                         image: DecorationImage(
@@ -90,7 +97,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
             },
           ),
           Padding(
-            padding:  EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+            padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
             child: Column(
               // mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,16 +106,17 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                   width: double.infinity,
                   height: 40,
                   decoration: BoxDecoration(
-                    // color: Colors.grey[300],
-                    // borderRadius: BorderRadius.only(
-                    //     topLeft: Radius.circular(30),
-                    //     topRight: Radius.circular(30))
-                  ),
+                      // color: Colors.grey[300],
+                      // borderRadius: BorderRadius.only(
+                      //     topLeft: Radius.circular(30),
+                      //     topRight: Radius.circular(30))
+                      ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       '${this.widget.community.name}',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ),
                 ),
@@ -158,7 +166,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                                 "Created By",
                               ),
                             ),
-                            Text(widget.community.createdBy,
+                            Text('${widget.community.createdBy}',
                                 style: TextStyle(color: Colors.grey))
                           ],
                         ),
@@ -182,9 +190,9 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
               backgroundColor: AppTheme.PrimaryColor)
           : FloatingActionButton.extended(
               onPressed: _joinLeaveGroup,
-              label: Text(hasJoined ? 'Leave' : 'Join'),
+              label: Text(widget.community.isMember ? 'Leave' : 'Join'),
               tooltip: 'Join Community',
-              icon: Icon(hasJoined ? Icons.clear : Icons.add),
+              icon: Icon(widget.community.isMember ? Icons.clear : Icons.add),
               backgroundColor: AppTheme.PrimaryColor,
             ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
@@ -192,9 +200,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
   }
 
   _joinLeaveGroup() {
-    setState(() {
-      isLoading = true;
-    });
+    _showLoading(true);
     Provider.of<AppState>(context, listen: false)
         .joinOrLeaveGroup(
       widget.community.id,
@@ -202,13 +208,12 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
         .then((value) {
       print(value);
       setState(() {
-        hasJoined = !hasJoined;
-        isLoading = false;
+        widget.community.isMember = !widget.community.isMember;
       });
+      _showLoading(false);
     }).catchError((onError) {
-      setState(() {
-        isLoading = false;
-      });
+      _showLoading(false);
+      AppUtils.showToast('Something went wrong');
     });
   }
 
@@ -245,5 +250,12 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
       // widget.community.image = community.image;
       updatedImage = File(community.image);
     });
+  }
+
+  void _showLoading(bool isLoading) {
+    if (mounted)
+      setState(() {
+        isSubmitting = isLoading;
+      });
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:snd_events/models/community.dart';
-import 'package:snd_events/screens/community_details.dart';
+import 'package:snd_events/screens/fancy_community_details.dart';
 import 'package:snd_events/states/app_state.dart';
 import 'package:snd_events/utils/app_utils.dart';
 import 'package:snd_events/widgets/comment_textfield.dart';
@@ -50,7 +50,7 @@ class _CommunityCommentsState extends State<CommunityCommentsScreen> {
                 icon: Icon(Icons.info),
                 onPressed: () {
                   AppUtils(context).nextPage(
-                      page: CommunityDetailsScreen(
+                      page: FancyCommunityDetails(
                           community: this.widget.community));
                 })
           ],

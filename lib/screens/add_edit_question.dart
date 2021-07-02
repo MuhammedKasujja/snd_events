@@ -108,6 +108,7 @@ class _AddEditQuestionScreenState extends State<AddEditQuestionScreen> {
                       selectedConditions,
                     )
                         .then((data) {
+                          appState.fetchQuestions();
                       _showPageSubmitting(false);
                       AppUtils.showToast("${data['response']}");
                       print("Response: $data");

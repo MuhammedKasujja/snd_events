@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:snd_events/data/repo.dart';
+import 'package:snd_events/states/app_state.dart';
 import 'package:snd_events/utils/app_utils.dart';
 import 'package:snd_events/utils/constants.dart';
 import 'package:snd_events/widgets/submit_button.dart';
 import 'package:snd_events/widgets/textfield.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
-  final String userToken;
-
-  const ChangePasswordScreen({Key key, @required this.userToken})
-      : super(key: key);
   @override
   _ChangePasswordScreenState createState() => _ChangePasswordScreenState();
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   String oldPass, newPass, confPass;
+  AppState appState;
+  @override
+  void initState() {
+    super.initState();
+    appState = Provider.of<AppState>(context, listen: false);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +56,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     if (_validatePassword()) {
                       Repository()
                           .changePassword(
-                              token: widget.userToken,
+                              token: appState.userToken,
                               oldPassword: oldPass,
                               newPassword: newPass)
                           .then((data) {

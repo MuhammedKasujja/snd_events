@@ -43,6 +43,7 @@ class Event {
         endDate: json['end_date'],
         startTime: json['start_time'],
         endTime: json['end_time'],
+        country: json['location_country'],
         isSaved: json['is_saved'] == null ? false : json['is_saved'],
         createdBy: json['created_by']);
   }
@@ -52,7 +53,7 @@ class Event {
       'theme': this.theme,
       'speaker': this.speaker,
       'location_district': this.locDistrict,
-      // 'organizer': this.organizer,
+      'organizer': this.organizer,
       'building_street': this.street,
       'start_date': this.startDate,
       'end_date': this.endDate,

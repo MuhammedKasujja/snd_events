@@ -5,16 +5,13 @@ import 'package:snd_events/screens/commuties_list.dart';
 import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/app_utils.dart';
 import 'package:snd_events/widgets/add_icon.dart';
+import 'package:snd_events/widgets/category_item.dart';
 import 'package:snd_events/widgets/event_type_icon.dart';
 import 'package:snd_events/widgets/eventlist.dart';
 import 'package:snd_events/enums/event_type.dart';
 import 'package:snd_events/utils/constants.dart';
 
 class EventListScreen extends StatefulWidget {
-  final String userToken;
-
-  const EventListScreen({Key key, @required this.userToken}) : super(key: key);
-
   @override
   _EventListScreenState createState() => _EventListScreenState();
 }
@@ -27,9 +24,9 @@ class _EventListScreenState extends State<EventListScreen> {
     return ListView(
       children: <Widget>[
         SizedBox(
-          height: 6,
+          height: 10,
         ),
-        CommunityListWidget(userToken: this.widget.userToken),
+        CommunityListWidget(),
         Center(
           child: InkWell(
             child: Text(
@@ -37,8 +34,7 @@ class _EventListScreenState extends State<EventListScreen> {
               style: TextStyle(fontSize: 18, color: Colors.grey),
             ),
             onTap: () {
-              AppUtils(context).nextPage(
-                  page: AddCommunityScreen(userToken: widget.userToken));
+              AppUtils(context).nextPage(page: AddCommunityScreen());
             },
           ),
         ),
@@ -65,50 +61,56 @@ class _EventListScreenState extends State<EventListScreen> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: AddIcon(
-                page: AddEditEventScreen(
-                  userToken: this.widget.userToken,
-                ),
+                page: AddEditEventScreen(),
               ),
             ),
           ],
         ),
+        CategoryWidget(),
         SizedBox(
-          height: 10,
+          height: 15,
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            EventTypeIcon(
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              EventTypeIcon(
+                  textColor:
+                      currentEventIndex == 0 ? Colors.white : selectedColor,
+                  color: currentEventIndex == 0 ? selectedColor : Colors.white,
+                  type: Constants.EVENT_TYPE_SUGGESTED,
+                  onSelected: () {
+                    setState(() {
+                      currentEventIndex = 0;
+                    });
+                  }),
+              EventTypeIcon(
+                  textColor:
+                      currentEventIndex == 1 ? Colors.white : selectedColor,
+                  color: currentEventIndex == 1 ? selectedColor : Colors.white,
+                  type: Constants.EVENT_TYPE_SAVED,
+                  onSelected: () {
+                    setState(() {
+                      currentEventIndex = 1;
+                    });
+                  }),
+              EventTypeIcon(
                 textColor:
-                    currentEventIndex == 0 ? Colors.white : selectedColor,
-                color: currentEventIndex == 0 ? selectedColor : Colors.white,
-                type: Constants.EVENT_TYPE_SUGGESTED,
+                    currentEventIndex == 2 ? Colors.white : selectedColor,
+                color: currentEventIndex == 2 ? selectedColor : Colors.white,
+                type: Constants.EVENT_TYPE_GOING,
                 onSelected: () {
                   setState(() {
-                    currentEventIndex = 0;
+                    currentEventIndex = 2;
                   });
-                }),
-            EventTypeIcon(
-                textColor:
-                    currentEventIndex == 1 ? Colors.white : selectedColor,
-                color: currentEventIndex == 1 ? selectedColor : Colors.white,
-                type: Constants.EVENT_TYPE_SAVED,
-                onSelected: () {
-                  setState(() {
-                    currentEventIndex = 1;
-                  });
-                }),
-            EventTypeIcon(
-              textColor: currentEventIndex == 2 ? Colors.white : selectedColor,
-              color: currentEventIndex == 2 ? selectedColor : Colors.white,
-              type: Constants.EVENT_TYPE_GOING,
-              onSelected: () {
-                setState(() {
-                  currentEventIndex = 2;
-                });
-              },
-            ),
-          ],
+                },
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 8.0,
         ),
         IndexedStack(
           index: currentEventIndex,

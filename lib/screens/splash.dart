@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:snd_events/data/repo.dart';
+import 'package:provider/provider.dart';
 import 'package:snd_events/screens/home.dart';
 import 'package:snd_events/screens/login.dart';
+import 'package:snd_events/states/app_state.dart';
 import 'package:snd_events/utils/app_theme.dart';
 import 'package:snd_events/utils/constants.dart';
 
@@ -17,20 +18,20 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Timer.periodic(Duration(seconds: 3), (t) {
-      Repository().loadPrefs().then((map) {
-        if (map.containsKey(Constants.USER_TOKEN) &&
-            map[Constants.USER_TOKEN] != null) {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => HomeScreen(
-                        token: map[Constants.USER_TOKEN],
-                      )));
-        } else {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => LoginScreen()));
-        }
-      });
+      var appState = Provider.of<AppState>(context, listen: false);
+      // print('AppStateToken: ${appState.userToken}');
+      // Repository().loadPrefs().then((map) {
+      if (appState.userToken != null) {
+        // print('RepoToken: ${appState.userToken}');
+        appState.getUserData();
+        appState.loadInitialData();
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      } else {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      }
+      // });
       print("Loaded Page");
       t.cancel();
     });
@@ -49,7 +50,8 @@ class _SplashScreenState extends State<SplashScreen> {
             children: <Widget>[
               Text(
                 Constants.APP_NAME,
-                style: TextStyle(fontSize: 25, color: AppTheme.PrimaryDarkColor),
+                style:
+                    TextStyle(fontSize: 25, color: AppTheme.PrimaryDarkColor),
               )
             ],
           ),

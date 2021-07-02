@@ -19,7 +19,7 @@ class EventLoadingWidget extends StatelessWidget {
           ),
           Expanded(
               child: Container(
-            color: Colors.grey,
+            color: Colors.grey[300],
           ))
         ],
       ),

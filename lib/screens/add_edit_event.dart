@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:provider/provider.dart';
 import 'package:snd_events/models/event.dart';
 import 'package:snd_events/states/app_state.dart';
@@ -17,12 +18,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:snd_events/enums/post_data.dart';
 
 class AddEditEventScreen extends StatefulWidget {
-  final String userToken;
   final Event event;
   final Function(Event event) updateEvent;
 
-  const AddEditEventScreen(
-      {Key key, this.userToken, this.event, this.updateEvent})
+  const AddEditEventScreen({Key key, this.event, this.updateEvent})
       : super(key: key);
   @override
   _AddEditEventScreenState createState() => _AddEditEventScreenState();
@@ -44,16 +43,15 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> {
   TextEditingController _speakerController = TextEditingController();
   TextEditingController _organizerController = TextEditingController();
 
-  final Geolocator _geolocator = Geolocator();
   Future<void> _onLookupCoordinatesPressed(
-      BuildContext context, position) async {
+      BuildContext context,Position pos) async {
     final List<Placemark> placemarks =
-        await Future(() => _geolocator.placemarkFromPosition(position))
+        await Future(() => placemarkFromCoordinates(pos.latitude, pos.longitude))
             .catchError((onError) {
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(onError.toString()),
       ));
-      return Future.value(List<Placemark>());
+      return Future.value(<Placemark>[]);
     });
 
     if (placemarks != null && placemarks.isNotEmpty) {
@@ -86,10 +84,11 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> {
     if (widget.event != null) _initialData(widget.event);
     _getUserPosition();
     super.initState();
+    // print('MyCountry: ${widget.event.country}');
   }
 
   _getUserPosition() async {
-    await _geolocator.getCurrentPosition().then((pos) {
+    await Geolocator.getCurrentPosition().then((pos) {
       _onLookupCoordinatesPressed(context, pos);
     });
   }
@@ -244,7 +243,8 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> {
                       height: 10,
                     ),
                     CountryDropdownWidget(
-                      defaultCountry: 'UG',
+                      defaultCountry:
+                          widget.event != null ? widget.event.country : 'UG',
                       onCountySelected: (country) {
                         print(country);
                         setState(() {
@@ -390,7 +390,8 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> {
     _themeController.text = event.theme;
     _speakerController.text = event.speaker;
     _organizerController.text = event.organizer;
-    _country = event.country;
+    print('Country: ${event.country}');
+    //  _country = event.country;
     // photo = File(path)
     //  setState(() {
     //    _defaultCountry = event.id;

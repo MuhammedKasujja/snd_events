@@ -1,6 +1,10 @@
 class Constants{
   Constants._();
   static const APP_NAME = "Vipepeo";
+  static const ARTICLES = "Articles";
+  static const ASK = "Ask";
+  static const NOTIFICATIONS ="Notifications";
+  static const HOME = "Home";
   static const REGISTER = "Register";
   static const LOGIN ="Login";
   static const EDIT_PROFILE ="Edit Profile";
@@ -20,6 +24,8 @@ class Constants{
   static const HINT_FILL_ALL_FIELDS = "Please fill all fields";
   static const HINT_DISTRICT = "District";
   static const HINT_DESCRIPTION = "Description";
+
+  static const NETWORK_ERROR = "Something went wrong";
 
   ///JSON KEY CODES
   static const KEY_CODE = "code";

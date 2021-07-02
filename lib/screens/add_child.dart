@@ -12,6 +12,7 @@ import 'package:snd_events/utils/constants.dart';
 import 'package:snd_events/widgets/dateformatted_textfield.dart';
 import 'package:snd_events/widgets/submit_button.dart';
 import 'package:snd_events/widgets/textfield.dart';
+import 'package:snd_events/widgets/select_child_conditions.dart';
 
 class AddChilScreen extends StatefulWidget {
   final String userToken;
@@ -26,7 +27,7 @@ class AddChilScreen extends StatefulWidget {
 class _AddChilScreenState extends State<AddChilScreen> {
   String gender, firstname, lastname, dob;
   List<ChildCondition> childConditions;
-  List<int> selectedConditions = [];
+  List selectedConditions = [];
   // final _multiSelectKey = GlobalKey<MultiSelectDropdownState>();
   AppState appState;
   bool isSubmitting = false;
@@ -173,7 +174,16 @@ class _AddChilScreenState extends State<AddChilScreen> {
                   height: 10,
                 ),
                 childConditions != null
-                    ? _checklistConditions()
+                    ? ChildConditionWidget(
+                        onselectedConditions: (conditions) {
+                          print(conditions);
+                          // setState(() {
+                          selectedConditions = conditions;
+                          // });
+                        },
+                      )
+                    //_checklistConditions()
+
                     // ? FlutterMultiChipSelect(
                     //         key: _multiSelectKey,
                     //         label: 'Select Conditions',
@@ -217,6 +227,7 @@ class _AddChilScreenState extends State<AddChilScreen> {
                     }).catchError((onError) {
                       _showPageSubmitting(false);
                       AppUtils.showToast('Somethng went wrong');
+                      print('CatchError $onError');
                     });
                   } else {
                     AppUtils.showToast(Constants.HINT_FILL_ALL_FIELDS);

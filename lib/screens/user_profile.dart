@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:snd_events/data/repo.dart';
 import 'package:snd_events/models/child.dart';
-import 'package:snd_events/models/user.dart';
 import 'package:snd_events/screens/add_child.dart';
 import 'package:snd_events/screens/add_profession.dart';
 import 'package:snd_events/screens/change_password.dart';
@@ -17,10 +16,6 @@ import 'package:snd_events/utils/constants.dart';
 import 'package:snd_events/utils/stack_bottom.dart';
 
 class UserProfileScreen extends StatefulWidget {
-  final String userToken;
-
-  const UserProfileScreen({Key key, this.userToken}) : super(key: key);
-
   @override
   _UserProfileScreenState createState() => _UserProfileScreenState();
 }
@@ -31,25 +26,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   String _profilePhoto;
   String _defaultImage = "assets/meddie.jpg";
   String email, country, city;
-  User user;
+  AppState appState;
   @override
   void initState() {
-    // Repository().getUserProfile(widget.userToken).then((user) {
-    //   setState(() {
-    //     listChildren = user.children;
-    //     name = user.name;
-    //     email =user.email;
-    //     country = user.country;
-    //     city = user.city;
-    //   });
-    // });
-    user = Provider.of<AppState>(context, listen: false).user;
-    if (user != null) {
-      listChildren = user.children;
-      name = user.name;
-      email = user.email;
-      country = user.country;
-      city = user.city;
+    appState = Provider.of<AppState>(context, listen: false);
+
+    if (appState.user != null) {
+      listChildren = appState.user.children;
+      name = appState.user.name;
+      email = appState.user.email;
+      country = appState.user.country;
+      city = appState.user.city;
     } else {}
 
     Repository().loadPrefs().then((map) {
@@ -109,7 +96,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                         shape: BoxShape.circle,
                                         image: DecorationImage(
                                             image: _profilePhoto != null
-                                                ? CachedNetworkImageProvider(_profilePhoto)
+                                                ? CachedNetworkImageProvider(
+                                                    _profilePhoto)
                                                 : AssetImage(
                                                     _defaultImage,
                                                   ),
@@ -167,7 +155,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   onPressed: () {
                                     AppUtils(context).nextPage(
                                         page: EditUserProfileScreen(
-                                      userToken: widget.userToken,
+                                      userToken: appState.userToken,
                                       onPhotoChanged: (photoUrl) {
                                         setState(() {
                                           _profilePhoto = photoUrl;
@@ -262,7 +250,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         onTap: () {
                           AppUtils(context).nextPage(
                               page: AddChilScreen(
-                            userToken: widget.userToken,
+                            userToken: appState.userToken,
                             onChildAdded: (child) {
                               setState(() {
                                 listChildren.insert(0, child);
@@ -291,8 +279,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Widget _showPopupMenu() => PopupMenuButton<int>(
       onSelected: (index) {
         if (index == 4) {
-          AppUtils(context).nextPage(
-              page: ChangePasswordScreen(userToken: widget.userToken));
+          AppUtils(context).nextPage(page: ChangePasswordScreen());
         }
         if (index == 5) {
           Repository().logout().then((onValue) {
@@ -307,8 +294,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           AppUtils(context).nextPage(page: StackBottom());
         }
         if (index == 6) {
-          AppUtils(context)
-              .nextPage(page: AddProfessionScreen(userToken: widget.userToken));
+          AppUtils(context).nextPage(
+              page: AddProfessionScreen(userToken: appState.userToken));
         }
       },
       itemBuilder: (context) => [

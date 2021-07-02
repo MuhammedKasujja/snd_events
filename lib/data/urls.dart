@@ -1,6 +1,7 @@
 class Urls {
   Urls._();
-  static const BASE_URL = "http://vipepeo.herokuapp.com";
+  // static const BASE_URL = "http://vipepeo.herokuapp.com";
+  static const BASE_URL = "http://vipepeo.pythonanywhere.com";
 
   // {/auth/} urls
   static const _PATH_AUTH = BASE_URL + "/accounts/auth";
